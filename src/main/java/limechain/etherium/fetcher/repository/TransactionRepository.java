@@ -11,17 +11,17 @@ import limechain.etherium.fetcher.model.EthereumTransaction;
 
 public interface TransactionRepository extends JpaRepository<EthereumTransaction, Long> {
 
-    Set<EthereumTransaction> findByTransactionHashIn(Set<BigInteger> transactionHashes);
+    Set<EthereumTransaction> findByTransactionHashIn(List<String> transactionHashes);
     
-    @Query(value = "INSERT INTO " + EthereumTransaction.TABLE_NAME + " (" + EthereumTransaction.VALUE + "," + EthereumTransaction.INPUT + "," + EthereumTransaction.LOGS_COUNT + ","
+    @Query(value = "INSERT INTO " + EthereumTransaction.TABLE_NAME + " (" + EthereumTransaction.VALUE + "," + EthereumTransaction.INPUT + "," + EthereumTransaction.LOGS_COUNT
+            + ","
             + EthereumTransaction.CONTRACT_ADDRESS + "," + EthereumTransaction.TO_ + "," + EthereumTransaction.FROM_ + "," + EthereumTransaction.BLOCK_NUMBER + ","
             + EthereumTransaction.BLOCK_HASH + "," + EthereumTransaction.TRANSACTION_STATUS + "," + EthereumTransaction.TRANSACTION_HASH + ") " +
-            "VALUES" + " (:" + EthereumTransaction.VALUE + ",:" + EthereumTransaction.INPUT + ",:"
+            "VALUES" + " (" + ":" + EthereumTransaction.VALUE + ",:" + EthereumTransaction.INPUT + ",:"
             + EthereumTransaction.LOGS_COUNT + ",:" + EthereumTransaction.CONTRACT_ADDRESS + ",:" + EthereumTransaction.TO_ + ",:" + EthereumTransaction.FROM_ + ",:"
             + EthereumTransaction.BLOCK_NUMBER + ",:" + EthereumTransaction.BLOCK_HASH + ",:" + EthereumTransaction.TRANSACTION_STATUS + ",:" + EthereumTransaction.TRANSACTION_HASH
             + ") "
             + "ON CONFLICT (transaction_hash) DO NOTHING", nativeQuery = true)
-    void saveAllIfNotExists(List<Integer> value, List<BigInteger> input, List<Integer> logs_count, List<BigInteger> contract_address, List<BigInteger> to, List<BigInteger> from_,
-            List<BigInteger> block_number, List<BigInteger> block_hash, List<Boolean> transaction_status, List<BigInteger> transaction_hash);
-
+    void saveAllIfNotExists(List<BigInteger> value, List<String> input, List<Integer> logs_count, List<String> contract_address, List<String> to_, List<String> from_,
+            List<BigInteger> block_number, List<String> block_hash, List<Boolean> transaction_status, List<String> transaction_hash);
 }

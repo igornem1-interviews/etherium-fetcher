@@ -1,19 +1,18 @@
-networks:
-  limechain_network:
-    name: limechain_network
-    driver: bridge
+version: '3.8'
 
 services:
-
-  pg:
-    container_name: etherium-fetcher-postgress
-    image: postgres:14-alpine3.17
+  postgres:
+    image: postgres:13  
+    container_name: etheruim_fetcher_postgres
     environment:
-      - "POSTGRES_DB=${PG_DATABASE_NAME}"
-      - "POSTGRES_USER=${PG_USER}"
-      - "POSTGRES_PASSWORD=${PG_PASSWORD}"
-      - POSTGRES_SSL_MODE=allow
+      - POSTGRES_USER=limechain 
+      - POSTGRES_PASSWORD=limechain 
+      - POSTGRES_DB=postgres 
     ports:
-      - "${PG_PORT}:5432"
-    networks:
-      - limechain_network
+      - "54322:5432"  
+    volumes:
+      - etheruim_fetcher_postgres_data:/var/lib/postgresql/data 
+    restart: always  
+
+volumes:
+  etheruim_fetcher_postgres_data: 
