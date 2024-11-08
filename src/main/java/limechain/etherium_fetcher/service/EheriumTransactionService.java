@@ -1,14 +1,15 @@
 package limechain.etherium_fetcher.service;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.methods.response.Transaction;
@@ -20,7 +21,6 @@ import org.web3j.rlp.RlpList;
 import org.web3j.rlp.RlpString;
 import org.web3j.rlp.RlpType;
 
-import jakarta.validation.constraints.NotEmpty;
 import limechain.etherium_fetcher.model.EthereumTransaction;
 import limechain.etherium_fetcher.repository.TransactionRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +41,7 @@ public class EheriumTransactionService {
         return repository.findAll();
     }
 
-    public Collection<EthereumTransaction> findByHashList(@NotEmpty List<String> hashes) throws IOException, TransactionException {
+    public Collection<EthereumTransaction> findByHashList(List<String> hashes) throws IOException, TransactionException {
         Set<String> sourceTransactions = new HashSet<>(hashes);
         log.debug("Looking transactions at DB for hashes: {}", sourceTransactions);
         List<EthereumTransaction> existingTransactions = repository.findByTransactionHashIn(hashes);
@@ -51,32 +51,18 @@ public class EheriumTransactionService {
             log.debug("Transactions not in DB for hashes: {}", sourceTransactions);
             List<EthereumTransaction> remainTransactions = getFromBlockChain(sourceTransactions);
 
-            List<BigDecimal> values = new ArrayList<>();
-            List<String> inputes = new ArrayList<>();
-            List<Integer> logsCount = new ArrayList<>();
-            List<String> contractAddresses = new ArrayList<>();
-            List<String> to = new ArrayList<>();
-            List<String> from = new ArrayList<>();
-            List<BigDecimal> blockNumbers = new ArrayList<>();
-            List<String> blockHashes = new ArrayList<>();
-            List<Boolean> transactionStatuses = new ArrayList<>();
-            List<String> transactionHashes = new ArrayList<>();
-
-            log.debug("Insert to DB the transactions fetched from blockchain: {}", remainTransactions);
             remainTransactions.forEach(transaction -> {
-                // values.add(transaction.getValue());
-                inputes.add(transaction.getInput());
-                logsCount.add(transaction.getLogsCount());
-                contractAddresses.add(transaction.getContractAddress());
-                to.add(transaction.getTo());
-                from.add(transaction.getFrom());
-                // blockNumbers.add(transaction.getBlockNumber());
-                blockHashes.add(transaction.getBlockHash());
-                transactionStatuses.add(transaction.getTransactionStatus());
-                transactionHashes.add(transaction.getTransactionHash());
+                try {
+                repository.saveOne(transaction);
+                } catch (DataIntegrityViolationException de) {
+                    Throwable cause = de.getCause();
+                    if (cause == null || cause.getClass() != ConstraintViolationException.class
+                            || !EthereumTransaction.UQ_TRANSACTION_HASH.equals(((ConstraintViolationException) cause).getConstraintName())) {
+                        log.error("Failed to store transaction due to: {}", de, ", transaction: {}", transaction);
+                    }
+                }
+                log.debug("Inserted to DB the transaction: {}", transaction);
             });
-            repository.saveAllIfNotExists(/* values, */ inputes, logsCount, contractAddresses, to, from, /* blockNumbers, */ blockHashes, /* transactionStatuses, */
-                    transactionHashes);
             existingTransactions.addAll(remainTransactions);
         }
         return existingTransactions;
@@ -104,7 +90,6 @@ public class EheriumTransactionService {
         RlpType mainElement = rlpList.getValues().get(0);
         if (mainElement instanceof RlpList) {
             RlpList mainList = (RlpList) mainElement;
-
             for (RlpType rlpType : mainList.getValues()) {
                 if (rlpType instanceof RlpString) {
                     RlpString rlpString = (RlpString) rlpType;
@@ -127,22 +112,17 @@ public class EheriumTransactionService {
                 TransactionReceipt txReceipt = web3j.ethGetTransactionReceipt(tx.getHash()).send().getTransactionReceipt().orElse(null);
                 EthereumTransaction ethereumTransaction = toEthereumTransaction(tx, txReceipt);
                 transactions.add(ethereumTransaction);
-                log.debug("Got tx via web3: {}", tx.getHash());
-                log.debug(ethereumTransaction.toString());
+                log.debug("Got transaction via web3: {}", ethereumTransaction);
             }
         }
         return transactions;
     }
 
     public EthereumTransaction toEthereumTransaction(Transaction tx, TransactionReceipt txReceipt) throws IOException, TransactionException {
-
         boolean transactionStatus = txReceipt != null && txReceipt.isStatusOK() ? true : false;
-        BigDecimal blockNumber = null;// tx.getBlockNumber() != null ? new BigDecimal(tx.getBlockNumber()) :
-                                      // BigDecimal.ZERO;
         int logsCount = txReceipt != null ? txReceipt.getLogs().size() : 0;
-
-        return new EthereumTransaction(null, tx.getHash(), transactionStatus, tx.getBlockHash(), /* blockNumber, */tx.getFrom(), tx.getTo(), tx.getCreates(), logsCount,
-                tx.getInput()/* , null new BigDecimal( tx.getValue() ) */);
+        return new EthereumTransaction(null, tx.getHash(), transactionStatus, tx.getBlockHash(), tx.getBlockNumber(), tx.getFrom(), tx.getTo(), tx.getCreates(), logsCount,
+                tx.getInput(), tx.getValue());
     }
 
 }

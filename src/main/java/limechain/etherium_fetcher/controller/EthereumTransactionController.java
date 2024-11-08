@@ -55,7 +55,7 @@ public class EthereumTransactionController {
     }
 
     @GetMapping(URI_ETH + "/{" + PARAM_RLPHEX + "}")
-    ResponseEntity<Collection<EthereumTransaction>> findByRlphex(@PathVariable String rlphexHashes) throws IOException, TransactionException {
+    ResponseEntity<Collection<EthereumTransaction>> findByRlphex(@PathVariable(name = PARAM_RLPHEX) String rlphexHashes) throws IOException, TransactionException {
         if (ObjectUtils.isEmpty(rlphexHashes)) {
             return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
         } else {

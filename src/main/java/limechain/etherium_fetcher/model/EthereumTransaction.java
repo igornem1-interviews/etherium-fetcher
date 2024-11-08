@@ -1,5 +1,7 @@
 package limechain.etherium_fetcher.model;
 
+import java.math.BigInteger;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -9,46 +11,42 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = EthereumTransaction.TABLE_NAME)
+@Table(name = EthereumTransaction.TABLE_NAME, uniqueConstraints = {
+        @UniqueConstraint(name = EthereumTransaction.UQ_TRANSACTION_HASH, columnNames = { EthereumTransaction.TRANSACTION_HASH }) })
 @EqualsAndHashCode(of = "id")
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class EthereumTransaction {
-    public static final String VALUE_ = "value_";
-    public static final String INPUT_ = "input_";
-    public static final String LOGS_COUNT = "logs_count";
-    public static final String CONTRACT_ADDRESS = "contract_address";
-    public static final String TO_ = "to_";
-    public static final String FROM_ = "from_";
-    public static final String BLOCK_NUMBER = "block_number";
-    public static final String BLOCK_HASH = "block_hash";
-    public static final String TRANSACTION_STATUS = "transaction_status";
-    public static final String TRANSACTION_HASH = "transaction_hash";
-    public static final String TABLE_NAME = "ethereum_transaction";
+
+    private static final String FROM_ = "from_";
+    private static final String TO_ = "to_";
+    private static final String TABLE_NAME = "ethereum_transaction";
+    static final String TRANSACTION_HASH = "transaction_hash";
+    public static final String UQ_TRANSACTION_HASH = "UQ_" + EthereumTransaction.TRANSACTION_HASH;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(columnDefinition = "serial")
     private Long id;
 
-    @Column(name = TRANSACTION_HASH, unique = true, columnDefinition = "TEXT") private String transactionHash;
-    @Column(name = TRANSACTION_STATUS) private Boolean transactionStatus;
-    @Column(name = BLOCK_HASH, columnDefinition = "TEXT") private String blockHash;
-    // @Column(name = BLOCK_NUMBER, precision = 40, scale = 0) private BigDecimal
-    // blockNumber;
+    @Column(name = TRANSACTION_HASH, columnDefinition = "TEXT") private String transactionHash;
+    private Boolean transactionStatus;
+    @Column(columnDefinition = "TEXT") private String blockHash;
+    private BigInteger blockNumber;
     @Column(name = FROM_, columnDefinition = "TEXT") private String from;
     @Column(name = TO_, columnDefinition = "TEXT") private String to;
-    @Column(name = CONTRACT_ADDRESS, columnDefinition = "TEXT") private String contractAddress;
-    @Column(name = LOGS_COUNT) private Integer logsCount;
-    @Column(name = INPUT_, columnDefinition = "TEXT") private String input;
-    // @Column(name = VALUE_, precision = 40, scale = 0) private BigDecimal value;
+    @Column(columnDefinition = "TEXT") private String contractAddress;
+    private Integer logsCount;
+    @Column(columnDefinition = "TEXT") private String input;
+    private BigInteger value;
 
     @Override
     public String toString() {
