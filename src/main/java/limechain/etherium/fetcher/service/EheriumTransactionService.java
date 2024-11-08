@@ -9,11 +9,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.exceptions.TransactionException;
+import org.web3j.protocol.http.HttpService;
 import org.web3j.rlp.RlpDecoder;
 import org.web3j.rlp.RlpList;
 import org.web3j.rlp.RlpString;
@@ -33,6 +35,11 @@ public class EheriumTransactionService {
     private static final int RADIX_16 = 16;
 
     private final TransactionRepository repository;
+
+    public EheriumTransactionService(@Value("${ethereum.node.url}") String ethereumNodeUrl, TransactionRepository transactionRecordRepository) {
+        this.web3j = Web3j.build(new HttpService(ethereumNodeUrl));
+        this.repository = transactionRecordRepository;
+    }
 
     public Collection<EthereumTransaction> findAll() {
         return repository.findAll();
