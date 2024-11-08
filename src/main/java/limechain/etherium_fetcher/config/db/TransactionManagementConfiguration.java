@@ -1,4 +1,4 @@
-package limechain.etherium.fetcher.config.db;
+package limechain.etherium_fetcher.config.db;
 
 import java.lang.reflect.AnnotatedElement;
 

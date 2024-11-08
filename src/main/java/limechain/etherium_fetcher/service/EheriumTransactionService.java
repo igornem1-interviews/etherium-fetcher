@@ -1,7 +1,7 @@
-package limechain.etherium.fetcher.service;
+package limechain.etherium_fetcher.service;
 
 import java.io.IOException;
-import java.math.BigInteger;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -21,8 +21,8 @@ import org.web3j.rlp.RlpString;
 import org.web3j.rlp.RlpType;
 
 import jakarta.validation.constraints.NotEmpty;
-import limechain.etherium.fetcher.model.EthereumTransaction;
-import limechain.etherium.fetcher.repository.TransactionRepository;
+import limechain.etherium_fetcher.model.EthereumTransaction;
+import limechain.etherium_fetcher.repository.TransactionRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -30,10 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 public class EheriumTransactionService {
 
     private final Web3j web3j;
-
-    private static final int HEXAVAL_BEGIN_2 = 2;
-    private static final int RADIX_16 = 16;
-
     private final TransactionRepository repository;
 
     public EheriumTransactionService(@Value("${ethereum.node.url}") String ethereumNodeUrl, TransactionRepository transactionRecordRepository) {
@@ -47,36 +43,40 @@ public class EheriumTransactionService {
 
     public Collection<EthereumTransaction> findByHashList(@NotEmpty List<String> hashes) throws IOException, TransactionException {
         Set<String> sourceTransactions = new HashSet<>(hashes);
-        Set<EthereumTransaction> existingTransactions = repository.findByTransactionHashIn(hashes);
+        log.debug("Looking transactions at DB for hashes: {}", sourceTransactions);
+        List<EthereumTransaction> existingTransactions = repository.findByTransactionHashIn(hashes);
+        log.debug("Found transactions at DB for hashes: {}", existingTransactions);
         if (existingTransactions.size() != sourceTransactions.size()) {
             existingTransactions.stream().forEach(t -> sourceTransactions.remove(t.getTransactionHash()));
-            Set<EthereumTransaction> remainTransactions = getFromBlockChain(sourceTransactions);
+            log.debug("Transactions not in DB for hashes: {}", sourceTransactions);
+            List<EthereumTransaction> remainTransactions = getFromBlockChain(sourceTransactions);
 
-            List<BigInteger> values = new ArrayList<>();
+            List<BigDecimal> values = new ArrayList<>();
             List<String> inputes = new ArrayList<>();
             List<Integer> logsCount = new ArrayList<>();
             List<String> contractAddresses = new ArrayList<>();
             List<String> to = new ArrayList<>();
             List<String> from = new ArrayList<>();
-            List<BigInteger> blockNumbers = new ArrayList<>();
+            List<BigDecimal> blockNumbers = new ArrayList<>();
             List<String> blockHashes = new ArrayList<>();
             List<Boolean> transactionStatuses = new ArrayList<>();
             List<String> transactionHashes = new ArrayList<>();
 
+            log.debug("Insert to DB the transactions fetched from blockchain: {}", remainTransactions);
             remainTransactions.forEach(transaction -> {
-                values.add(transaction.getValue());
+                // values.add(transaction.getValue());
                 inputes.add(transaction.getInput());
                 logsCount.add(transaction.getLogsCount());
                 contractAddresses.add(transaction.getContractAddress());
                 to.add(transaction.getTo());
                 from.add(transaction.getFrom());
-                blockNumbers.add(transaction.getBlockNumber());
+                // blockNumbers.add(transaction.getBlockNumber());
                 blockHashes.add(transaction.getBlockHash());
                 transactionStatuses.add(transaction.getTransactionStatus());
                 transactionHashes.add(transaction.getTransactionHash());
             });
-
-            repository.saveAllIfNotExists(values, inputes, logsCount, contractAddresses, to, from, blockNumbers, blockHashes, transactionStatuses, transactionHashes);
+            repository.saveAllIfNotExists(/* values, */ inputes, logsCount, contractAddresses, to, from, /* blockNumbers, */ blockHashes, /* transactionStatuses, */
+                    transactionHashes);
             existingTransactions.addAll(remainTransactions);
         }
         return existingTransactions;
@@ -118,15 +118,17 @@ public class EheriumTransactionService {
         return transactionHashes;
     }
 
-    private Set<EthereumTransaction> getFromBlockChain(Set<String> transactionHashes) throws IOException, TransactionException {
-        log.debug("Looking transactions for list:" + transactionHashes);
-        Set<EthereumTransaction> transactions = new HashSet<>();
+    private List<EthereumTransaction> getFromBlockChain(Set<String> transactionHashes) throws IOException, TransactionException {
+        log.debug("Looking transactions from blockchain for list:" + transactionHashes);
+        List<EthereumTransaction> transactions = new ArrayList<>();
         for (String txHash : transactionHashes) {
             Transaction tx = web3j.ethGetTransactionByHash(txHash).send().getTransaction().orElse(null);
-            log.debug("Got tx via web3: " + tx);
             if (tx != null) {
                 TransactionReceipt txReceipt = web3j.ethGetTransactionReceipt(tx.getHash()).send().getTransactionReceipt().orElse(null);
-                transactions.add(toEthereumTransaction(tx, txReceipt));
+                EthereumTransaction ethereumTransaction = toEthereumTransaction(tx, txReceipt);
+                transactions.add(ethereumTransaction);
+                log.debug("Got tx via web3: {}", tx.getHash());
+                log.debug(ethereumTransaction.toString());
             }
         }
         return transactions;
@@ -135,11 +137,12 @@ public class EheriumTransactionService {
     public EthereumTransaction toEthereumTransaction(Transaction tx, TransactionReceipt txReceipt) throws IOException, TransactionException {
 
         boolean transactionStatus = txReceipt != null && txReceipt.isStatusOK() ? true : false;
-        BigInteger blockNumber = tx.getBlockNumber() != null ? tx.getBlockNumber() : BigInteger.ZERO;
+        BigDecimal blockNumber = null;// tx.getBlockNumber() != null ? new BigDecimal(tx.getBlockNumber()) :
+                                      // BigDecimal.ZERO;
         int logsCount = txReceipt != null ? txReceipt.getLogs().size() : 0;
 
-        return new EthereumTransaction(null, tx.getHash(), transactionStatus, tx.getBlockHash(), blockNumber, tx.getFrom(), tx.getTo(), tx.getCreates(), logsCount, tx.getInput(),
-                tx.getValue());
+        return new EthereumTransaction(null, tx.getHash(), transactionStatus, tx.getBlockHash(), /* blockNumber, */tx.getFrom(), tx.getTo(), tx.getCreates(), logsCount,
+                tx.getInput()/* , null new BigDecimal( tx.getValue() ) */);
     }
 
 }

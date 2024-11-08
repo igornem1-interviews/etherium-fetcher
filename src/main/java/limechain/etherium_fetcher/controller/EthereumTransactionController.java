@@ -1,4 +1,4 @@
-package limechain.etherium.fetcher.controller;
+package limechain.etherium_fetcher.controller;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.web3j.protocol.exceptions.TransactionException;
 
-import limechain.etherium.fetcher.model.EthereumTransaction;
-import limechain.etherium.fetcher.service.EheriumTransactionService;
+import limechain.etherium_fetcher.model.EthereumTransaction;
+import limechain.etherium_fetcher.service.EheriumTransactionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

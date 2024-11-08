@@ -1,18 +1,12 @@
-version: '3.8'
-
 services:
-  postgres:
-    image: postgres:13  
-    container_name: etheruim_fetcher_postgres
+  pg:
+    container_name: etherium-fetcher-postgress
+    image: postgres:14-alpine3.17
     environment:
-      - POSTGRES_USER=limechain 
-      - POSTGRES_PASSWORD=limechain 
-      - POSTGRES_DB=postgres 
+      - "POSTGRES_DB=${PG_DATABASE_NAME}"
+      - "POSTGRES_USER=${PG_USER}"
+      - "POSTGRES_PASSWORD=${PG_PASSWORD}"
+      - POSTGRES_SSL_MODE=allow
     ports:
-      - "54322:5432"  
-    volumes:
-      - etheruim_fetcher_postgres_data:/var/lib/postgresql/data 
-    restart: always  
+      - "${PG_PORT}:5432"
 
-volumes:
-  etheruim_fetcher_postgres_data: 

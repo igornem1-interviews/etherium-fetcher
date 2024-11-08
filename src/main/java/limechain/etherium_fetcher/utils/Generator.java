@@ -1,4 +1,4 @@
-package limechain.etherium.fetcher.utils;
+package limechain.etherium_fetcher.utils;
 
 public class Generator {
 

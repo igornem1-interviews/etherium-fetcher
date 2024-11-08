@@ -1,4 +1,4 @@
-package limechain.etherium.fetcher.api.errorhandler;
+package limechain.etherium_fetcher.api.errorhandler;
 
 import java.util.Date;
 
@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 
-import limechain.etherium.fetcher.exception.AccountNotFoundException;
-import limechain.etherium.fetcher.exception.ErrorMessage;
+import limechain.etherium_fetcher.exception.AccountNotFoundException;
+import limechain.etherium_fetcher.exception.ErrorMessage;
 
 @ResponseBody
 @ControllerAdvice

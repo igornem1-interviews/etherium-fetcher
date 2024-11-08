@@ -1,4 +1,4 @@
-package limechain.etherium.fetcher.exception;
+package limechain.etherium_fetcher.exception;
 
 public class ApplicationException extends Exception {
 

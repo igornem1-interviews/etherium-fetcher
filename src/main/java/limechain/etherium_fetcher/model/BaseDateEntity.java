@@ -1,4 +1,4 @@
-package limechain.etherium.fetcher.model;
+package limechain.etherium_fetcher.model;
 
 import java.sql.Timestamp;
 
