@@ -1,4 +1,4 @@
-package limechain.etherium.fetcher.db.repository;
+package limechain.etherium.fetcher.repository;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -7,7 +7,7 @@ import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import limechain.etherium.fetcher.db.model.EthereumTransaction;
+import limechain.etherium.fetcher.model.EthereumTransaction;
 
 public interface TransactionRepository extends JpaRepository<EthereumTransaction, Long> {
 

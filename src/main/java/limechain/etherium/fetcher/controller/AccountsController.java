@@ -1,4 +1,4 @@
-package limechain.etherium.fetcher.web.controller.account;
+package limechain.etherium.fetcher.controller;
 
 import java.security.Principal;
 
@@ -10,9 +10,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping(AccountsController.ROOT)
-@PreAuthorize("hasAnyAuthority('" + ProfileController.MERCHANT + "','" + ProfileController.SUBSCRIBE + "')")
+@PreAuthorize("hasAnyAuthority('" + AccountsController.MERCHANT + "','" + AccountsController.SUBSCRIBE + "')")
 public class AccountsController {
-
+    static final String MERCHANT = "MERCHANT";
+    static final String SUBSCRIBE = "SUBSCRIBE";
     public static final String ROOT = "/accounts";
     public static final String REDIRECT_ROOT = "redirect:" + ROOT;
 

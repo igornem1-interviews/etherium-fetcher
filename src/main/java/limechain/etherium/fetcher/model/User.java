@@ -1,19 +1,15 @@
-package limechain.etherium.fetcher.db.model;
+package limechain.etherium.fetcher.model;
 
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Transient;
 import javax.validation.constraints.Email;
@@ -58,10 +54,6 @@ public class User extends BaseEntity implements UserDetails {
     @CollectionTable(name = "USER_ROLE", joinColumns = @JoinColumn(name = "USER_ID"))
     @Column(name = "ROLE_ID")
     private Set<Role> roles;
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @PrimaryKeyJoinColumn
-    private ResetPassword resetPassword;
 
     public String getUsername() {
         return username;
@@ -132,11 +124,4 @@ public class User extends BaseEntity implements UserDetails {
         return securityDetails;
     }
 
-    public ResetPassword getResetPassword() {
-        return resetPassword;
-    }
-
-    public void setResetPassword(ResetPassword resetPassword) {
-        this.resetPassword = resetPassword;
-    }
 }

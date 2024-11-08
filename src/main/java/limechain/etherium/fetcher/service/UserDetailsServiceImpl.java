@@ -12,9 +12,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import limechain.etherium.fetcher.db.model.User;
-import limechain.etherium.fetcher.db.model.Role;
-import limechain.etherium.fetcher.db.repository.UserRepository;
+import limechain.etherium.fetcher.model.Role;
+import limechain.etherium.fetcher.model.User;
+import limechain.etherium.fetcher.repository.UserRepository;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {

@@ -25,7 +25,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 
-import limechain.etherium.fetcher.db.model.User;
+import limechain.etherium.fetcher.model.User;
 
 @Service
 public class SecurityService {

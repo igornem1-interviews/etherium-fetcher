@@ -1,4 +1,4 @@
-package limechain.etherium.fetcher.db.model;
+package limechain.etherium.fetcher.model;
 
 import org.springframework.security.core.GrantedAuthority;
 

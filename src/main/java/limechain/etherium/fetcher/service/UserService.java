@@ -8,9 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import limechain.etherium.fetcher.db.model.Role;
-import limechain.etherium.fetcher.db.model.User;
-import limechain.etherium.fetcher.db.repository.UserRepository;
+import limechain.etherium.fetcher.model.Role;
+import limechain.etherium.fetcher.model.User;
+import limechain.etherium.fetcher.repository.UserRepository;
 
 @Service
 public class UserService {

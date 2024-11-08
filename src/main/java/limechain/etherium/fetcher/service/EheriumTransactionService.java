@@ -19,8 +19,8 @@ import org.web3j.rlp.RlpList;
 import org.web3j.rlp.RlpString;
 import org.web3j.rlp.RlpType;
 
-import limechain.etherium.fetcher.db.model.EthereumTransaction;
-import limechain.etherium.fetcher.db.repository.TransactionRepository;
+import limechain.etherium.fetcher.model.EthereumTransaction;
+import limechain.etherium.fetcher.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service

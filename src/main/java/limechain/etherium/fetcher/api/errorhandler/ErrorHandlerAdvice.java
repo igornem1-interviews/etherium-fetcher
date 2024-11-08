@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 
-import limechain.etherium.fetcher.api.exception.AccountNotFoundException;
-import limechain.etherium.fetcher.api.exception.ErrorMessage;
+import limechain.etherium.fetcher.exception.AccountNotFoundException;
+import limechain.etherium.fetcher.exception.ErrorMessage;
 
 @ResponseBody
 @ControllerAdvice

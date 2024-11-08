@@ -1,8 +1,8 @@
-package limechain.etherium.fetcher.db.repository;
+package limechain.etherium.fetcher.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import limechain.etherium.fetcher.db.model.User;
+import limechain.etherium.fetcher.model.User;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     User findByUsername(String username);

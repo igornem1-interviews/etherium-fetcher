@@ -1,4 +1,4 @@
-package limechain.etherium.fetcher.api.exception;
+package limechain.etherium.fetcher.exception;
 
 import java.util.Date;
 

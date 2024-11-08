@@ -15,7 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.filter.GenericFilterBean;
 
-import limechain.etherium.fetcher.db.model.User;
+import limechain.etherium.fetcher.model.User;
 
 public class SessionFilter extends GenericFilterBean {
 
