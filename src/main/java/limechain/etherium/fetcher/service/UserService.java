@@ -2,25 +2,21 @@ package limechain.etherium.fetcher.service;
 
 import java.util.Random;
 
-import javax.transaction.Transactional;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import limechain.etherium.fetcher.model.Role;
 import limechain.etherium.fetcher.model.User;
 import limechain.etherium.fetcher.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
-    @Autowired
-    private UserService self;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final UserRepository userRepository;
+    private BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
     final static Random random = new Random();
 
@@ -30,14 +26,6 @@ public class UserService {
         account.setPassword(bCryptPasswordEncoder.encode(account.getPassword()));
         account.setRoles(Role.OTP);
         return userRepository.save(account);
-    }
-
-    @Transactional
-    public boolean confirmOtp(String email, String otpKey) {
-        User account = self.findByUsername(email);
-            account.setRoles(Role.SUBSCRIBE);
-            account = userRepository.save(account);
-            return true;
     }
 
     @Transactional

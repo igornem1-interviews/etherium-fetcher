@@ -2,11 +2,11 @@ package limechain.etherium.fetcher.model;
 
 import java.sql.Timestamp;
 
-import javax.persistence.MappedSuperclass;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
-
 import org.springframework.data.annotation.CreatedDate;
+
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 
 /**
  * Super class for all entities.

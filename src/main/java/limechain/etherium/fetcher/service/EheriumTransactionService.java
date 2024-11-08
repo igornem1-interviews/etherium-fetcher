@@ -23,10 +23,8 @@ import org.web3j.rlp.RlpType;
 
 import limechain.etherium.fetcher.model.EthereumTransaction;
 import limechain.etherium.fetcher.repository.TransactionRepository;
-import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
 public class EheriumTransactionService {
 
     private final Web3j web3j;
@@ -45,13 +43,38 @@ public class EheriumTransactionService {
         return repository.findAll();
     }
 
-    public Collection<EthereumTransaction> findByHashList(List<String> transactionHashes) throws IOException, TransactionException {
-        Set<BigInteger> sourceTransactions = toBigIntegers(transactionHashes);
+    public Collection<EthereumTransaction> findByHashList(List<String> hashes) throws IOException, TransactionException {
+        Set<BigInteger> sourceTransactions = toBigIntegers(hashes);
         Set<EthereumTransaction> existingTransactions = repository.findByTransactionHashIn(sourceTransactions);
         if (existingTransactions.size() != sourceTransactions.size()) {
             existingTransactions.stream().forEach(t -> sourceTransactions.remove(t.getTransactionHash()));
             Set<EthereumTransaction> remainTransactions = getFromBlockChain(sourceTransactions);
-            repository.saveAll(remainTransactions);
+
+            List<Integer> values = new ArrayList<>();
+            List<BigInteger> inputes = new ArrayList<>();
+            List<Integer> logsCount = new ArrayList<>();
+            List<BigInteger> contractAddresses = new ArrayList<>();
+            List<BigInteger> to = new ArrayList<>();
+            List<BigInteger> from = new ArrayList<>();
+            List<BigInteger> blockNumbers = new ArrayList<>();
+            List<BigInteger> blockHashes = new ArrayList<>();
+            List<Boolean> transactionStatuses = new ArrayList<>();
+            List<BigInteger> transactionHashes = new ArrayList<>();
+
+            remainTransactions.forEach(transaction -> {
+                values.add(transaction.getValue());
+                inputes.add(transaction.getInput());
+                logsCount.add(transaction.getLogsCount());
+                contractAddresses.add(transaction.getContractAddress());
+                to.add(transaction.getTo());
+                from.add(transaction.getFrom());
+                blockNumbers.add(transaction.getBlockNumber());
+                blockHashes.add(transaction.getBlockHash());
+                transactionStatuses.add(transaction.getTransactionStatus());
+                transactionHashes.add(transaction.getTransactionHash());
+            });
+
+            repository.saveAllIfNotExists(values, inputes, logsCount, contractAddresses, to, from, blockNumbers, blockHashes, transactionStatuses, transactionHashes);
             existingTransactions.addAll(remainTransactions);
         }
         return existingTransactions;
