@@ -15,7 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.filter.GenericFilterBean;
 
-import limechain.etherium.fetcher.db.model.Account;
+import limechain.etherium.fetcher.db.model.User;
 
 public class SessionFilter extends GenericFilterBean {
 
@@ -24,8 +24,8 @@ public class SessionFilter extends GenericFilterBean {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
             if (authentication.isAuthenticated()) {
-                if (authentication.getPrincipal() instanceof Account) {
-                    Account user = (Account) ((UsernamePasswordAuthenticationToken) authentication).getPrincipal();
+                if (authentication.getPrincipal() instanceof User) {
+                    User user = (User) ((UsernamePasswordAuthenticationToken) authentication).getPrincipal();
                     if (user.getId() == null) {
                         new SecurityContextLogoutHandler().logout((HttpServletRequest) request, (HttpServletResponse) response, authentication);
                     }

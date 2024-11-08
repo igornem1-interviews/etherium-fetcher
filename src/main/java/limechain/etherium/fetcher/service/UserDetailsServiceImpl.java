@@ -12,19 +12,19 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import limechain.etherium.fetcher.db.model.Account;
+import limechain.etherium.fetcher.db.model.User;
 import limechain.etherium.fetcher.db.model.Role;
-import limechain.etherium.fetcher.db.repository.TransactionRepository;
+import limechain.etherium.fetcher.db.repository.UserRepository;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
-    private TransactionRepository userRepository;
+    private UserRepository userRepository;
 
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) {
-        Account user = userRepository.findByUsername(username);
+        User user = userRepository.findByUsername(username);
 
         if (user == null)
             throw new UsernameNotFoundException(username);

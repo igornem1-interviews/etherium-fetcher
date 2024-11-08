@@ -9,7 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import limechain.etherium.fetcher.db.model.Account;
+import limechain.etherium.fetcher.db.model.User;
 
 @Controller
 @RequestMapping(ProfileController.ROOT_URL)
@@ -23,7 +23,7 @@ public class ProfileController {
 
     @GetMapping
     public String profile(Model model, Principal principal) {
-        Account user = (Account) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+        User user = (User) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
         model.addAttribute("user", user);
         return "profile/profile";
     }

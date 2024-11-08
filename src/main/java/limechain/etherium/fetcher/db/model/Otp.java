@@ -9,15 +9,15 @@ import javax.persistence.SequenceGenerator;
 public class Otp extends BaseEntity {
 
     @OneToOne
-    private Account user;
+    private User user;
 
     private String otp;
 
-    public Account getUser() {
+    public User getUser() {
         return user;
     }
 
-    public void setUser(Account user) {
+    public void setUser(User user) {
         this.user = user;
     }
 

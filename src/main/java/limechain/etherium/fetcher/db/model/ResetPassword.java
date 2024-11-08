@@ -19,7 +19,7 @@ public class ResetPassword extends BaseDateEntity {
     @OneToOne()
     @MapsId
     @JoinColumn(name = "user_id")
-    private Account user;
+    private User user;
 
     @Column(unique = true)
     private UUID resetKey;
@@ -27,7 +27,7 @@ public class ResetPassword extends BaseDateEntity {
     public ResetPassword() {
     }
 
-    public ResetPassword(Account user, UUID resetKey) {
+    public ResetPassword(User user, UUID resetKey) {
         this.user = user;
         this.id = user.getId();
         this.resetKey = resetKey;
@@ -41,11 +41,11 @@ public class ResetPassword extends BaseDateEntity {
         this.id = id;
     }
 
-    public Account getUser() {
+    public User getUser() {
         return user;
     }
 
-    public void setUser(Account user) {
+    public void setUser(User user) {
         this.user = user;
     }
 

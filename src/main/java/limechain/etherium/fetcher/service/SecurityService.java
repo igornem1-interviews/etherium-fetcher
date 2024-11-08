@@ -25,7 +25,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 
-import limechain.etherium.fetcher.db.model.Account;
+import limechain.etherium.fetcher.db.model.User;
 
 @Service
 public class SecurityService {
@@ -73,17 +73,17 @@ public class SecurityService {
                 SecurityContextHolder.getContext().getAuthentication().getCredentials(), updatedAuthorities));
     }
 
-    public void replaceUserDetails(Account user) {
+    public void replaceUserDetails(User user) {
         SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(user, SecurityContextHolder.getContext().getAuthentication().getCredentials(),
                 SecurityContextHolder.getContext().getAuthentication().getAuthorities()));
     }
 
-    public Map<String, Account> getLoggedInPrincipals() {
+    public Map<String, User> getLoggedInPrincipals() {
         List<?> all = sessionRegistry.getAllPrincipals();
         if (all.size() > 0) {
-            Map<String, Account> principals = new HashMap<>();
+            Map<String, User> principals = new HashMap<>();
             for (Object principal : all) {
-                Account user = (Account) principal;
+                User user = (User) principal;
                 principals.put(user.getUsername(), user);
             }
             return principals;

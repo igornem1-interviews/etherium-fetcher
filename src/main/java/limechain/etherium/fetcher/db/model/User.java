@@ -24,18 +24,18 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @SuppressWarnings("serial")
-@Entity(name = "accounts")
+@Entity(name = "users")
 @SequenceGenerator(name = BaseEntity.ID_GEN, sequenceName = "user_seq", allocationSize = 1)
-public class Account extends BaseEntity implements UserDetails {
+public class User extends BaseEntity implements UserDetails {
 
     @Transient
     private org.springframework.security.core.userdetails.User securityDetails;
 
-    public Account() {
+    public User() {
 
     }
 
-    public Account(@Email(message = "*Please provide a valid Email") @NotEmpty(message = "*Please provide an email") String username,
+    public User(@Email(message = "*Please provide a valid Email") @NotEmpty(message = "*Please provide an email") String username,
             @Length(min = 5, message = "*Your password must have at least 5 characters") @NotEmpty(message = "*Please provide your password") String password, Set<Role> roles) {
         super();
         this.username = username;
