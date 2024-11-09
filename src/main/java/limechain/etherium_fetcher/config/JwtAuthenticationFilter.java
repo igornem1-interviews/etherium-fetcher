@@ -18,8 +18,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import limechain.etherium_fetcher.service.JwtService;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private final HandlerExceptionResolver handlerExceptionResolver;
 
@@ -62,8 +64,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			}
 
 			filterChain.doFilter(request, response);
-		} catch (Exception exception) {
-			handlerExceptionResolver.resolveException(request, response, null, exception);
+		} catch (Exception e) {
+			log.info("JWT tocken not valid, reason: _{}", e.getMessage());
+			UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(null, null);
+			SecurityContextHolder.getContext().setAuthentication(authToken);
+			filterChain.doFilter(request, response);
 		}
 	}
 }

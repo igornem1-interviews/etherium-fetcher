@@ -47,10 +47,10 @@ public class EthereumTransactionController {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = authentication.getName();
 
-		if (username != null) {
-			log.debug("Request not authorised");
-		} else {
+		if (authentication.isAuthenticated()) {
 			log.debug("Request authorised, user:{}", username);
+		} else {
+			log.debug("Request not authorised");
 		}
 
         if (CollectionUtils.isEmpty(transactionHashes)) {
