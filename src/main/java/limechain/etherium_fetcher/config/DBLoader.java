@@ -36,6 +36,6 @@ public class DBLoader {
 
     private User fetchOrCreate(String username) {
         Optional<User> byUsername = repository.findByUsername(username);
-        return byUsername.orElseGet(() -> repository.save(new User(username, bCryptPasswordEncoder.encode(username))));
+        return byUsername.orElseGet(() -> repository.save(new User(username, bCryptPasswordEncoder.encode(username), null)));
     }
 }
