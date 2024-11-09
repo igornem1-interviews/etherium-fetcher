@@ -8,9 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import limechain.etherium_fetcher.dto.LoginResponse;
-import limechain.etherium_fetcher.dto.LoginUserDto;
-import limechain.etherium_fetcher.dto.RegisterUserDto;
-import limechain.etherium_fetcher.model.User;
+import limechain.etherium_fetcher.dto.LoginDto;
 import limechain.etherium_fetcher.service.AuthenticationService;
 import limechain.etherium_fetcher.service.JwtService;
 
@@ -26,15 +24,8 @@ public class AuthenticationController {
 		this.authenticationService = authenticationService;
 	}
 
-	@PostMapping("/signup")
-	public ResponseEntity<User> register(@RequestBody RegisterUserDto registerUserDto) {
-		User registeredUser = authenticationService.signup(registerUserDto);
-
-		return ResponseEntity.ok(registeredUser);
-	}
-
 	@PostMapping("/login")
-	public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) {
+	public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginDto loginUserDto) {
         UserDetails authenticatedUser = authenticationService.authenticate(loginUserDto);
 
 		String jwtToken = jwtService.generateToken(authenticatedUser);
