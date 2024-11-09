@@ -1,6 +1,8 @@
 package limechain.etherium_fetcher.config;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -16,22 +18,21 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class DBLoader {
-	private final UserRepository repository;
-	private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final UserRepository repository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final List<String> users = List.of("alice", "bob", "carol", "dave");
 
-	@Bean
-	CommandLineRunner initDatabase() {
-		return args -> {
-			log.info("Preloading " + fetchOrCreate("alice"));
-			log.info("Preloading " + fetchOrCreate("aob"));
-			
-		};
-	}
+    @Bean
+    CommandLineRunner initDatabase() {
+        return args -> {
+            users.forEach(user -> fetchOrCreate(user));
+            log.info(System.lineSeparator() + "Users credentials loaded into system(username / password):"
+                     +System.lineSeparator()+users.stream().map(name -> name + " / " + name).collect(Collectors.joining(System.lineSeparator())));
+        };
+    }
 
-	private User fetchOrCreate(String username) {
-		Optional<User> byUsername = repository.findByUsername(username);
-		return byUsername
-				.orElseGet(() ->
-						repository.save(new User(username, bCryptPasswordEncoder.encode(username))));
-	}
+    private User fetchOrCreate(String username) {
+        Optional<User> byUsername = repository.findByUsername(username);
+        return byUsername.orElseGet(() -> repository.save(new User(username, bCryptPasswordEncoder.encode(username))));
+    }
 }
