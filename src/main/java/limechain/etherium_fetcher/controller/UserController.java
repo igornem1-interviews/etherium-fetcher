@@ -7,19 +7,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import limechain.etherium_fetcher.config.Constants;
 import limechain.etherium_fetcher.model.User;
-import limechain.etherium_fetcher.service.UserService;
 
-@RequestMapping("/users")
+@RequestMapping(Constants.URI_ROOT)
 @RestController
 public class UserController {
-	private final UserService userService;
 
-	public UserController(UserService userService) {
-		this.userService = userService;
-	}
-
-	@GetMapping("/me")
+    @GetMapping("/my")
 	public ResponseEntity<User> authenticatedUser() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
