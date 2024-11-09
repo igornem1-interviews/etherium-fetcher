@@ -2,6 +2,7 @@ package limechain.etherium_fetcher.service;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -12,29 +13,26 @@ import limechain.etherium_fetcher.repository.UserRepository;
 
 @Service
 public class AuthenticationService {
-	private final UserRepository userRepository;
+    private final UserRepository userRepository;
 
-	private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-	private final AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
 
-	public AuthenticationService(UserRepository userRepository, AuthenticationManager authenticationManager,
-			PasswordEncoder passwordEncoder) {
-		this.authenticationManager = authenticationManager;
-		this.userRepository = userRepository;
-		this.passwordEncoder = passwordEncoder;
-	}
+    public AuthenticationService(UserRepository userRepository, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder) {
+        this.authenticationManager = authenticationManager;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
-	public User signup(RegisterUserDto input) {
-		User user = new User(input.getUsername(), passwordEncoder.encode(input.getPassword()));
+    public User signup(RegisterUserDto input) {
+        User user = new User(input.getUsername(), passwordEncoder.encode(input.getPassword()));
 
-		return userRepository.save(user);
-	}
+        return userRepository.save(user);
+    }
 
-	public User authenticate(LoginUserDto input) {
-		authenticationManager
-				.authenticate(new UsernamePasswordAuthenticationToken(input.getUsername(), input.getPassword()));
-
-		return userRepository.findByUsername(input.getUsername()).orElseThrow();
-	}
+    public UserDetails authenticate(LoginUserDto input) {
+        return (UserDetails) (authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(input.getUsername(), input.getPassword()))).getPrincipal();
+        // return userRepository.findByUsername(input.getUsername()).orElseThrow();
+    }
 }

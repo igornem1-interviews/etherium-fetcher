@@ -1,6 +1,7 @@
 package limechain.etherium_fetcher.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,7 +35,7 @@ public class AuthenticationController {
 
 	@PostMapping("/login")
 	public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) {
-		User authenticatedUser = authenticationService.authenticate(loginUserDto);
+        UserDetails authenticatedUser = authenticationService.authenticate(loginUserDto);
 
 		String jwtToken = jwtService.generateToken(authenticatedUser);
 
