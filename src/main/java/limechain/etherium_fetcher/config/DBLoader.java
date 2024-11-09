@@ -15,8 +15,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Configuration
-@Slf4j
 @RequiredArgsConstructor
+@Slf4j
 public class DBLoader {
     private final UserRepository repository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
