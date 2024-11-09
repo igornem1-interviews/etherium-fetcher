@@ -7,31 +7,26 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import limechain.etherium_fetcher.dto.LoginResponse;
+import limechain.etherium_fetcher.config.Constants;
 import limechain.etherium_fetcher.dto.LoginDto;
+import limechain.etherium_fetcher.dto.LoginResponseDto;
 import limechain.etherium_fetcher.service.AuthenticationService;
 import limechain.etherium_fetcher.service.JwtService;
+import lombok.RequiredArgsConstructor;
 
-@RequestMapping("/auth")
+@RequestMapping(Constants.URI_ROOT)
 @RestController
+@RequiredArgsConstructor
 public class AuthenticationController {
-	private final JwtService jwtService;
+    private final JwtService jwtService;
+    private final AuthenticationService authenticationService;
+    static final String URI_AUTH = "/authenticate";
 
-	private final AuthenticationService authenticationService;
-
-	public AuthenticationController(JwtService jwtService, AuthenticationService authenticationService) {
-		this.jwtService = jwtService;
-		this.authenticationService = authenticationService;
-	}
-
-	@PostMapping("/login")
-	public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginDto loginUserDto) {
+    @PostMapping(AuthenticationController.URI_AUTH)
+	public ResponseEntity<LoginResponseDto> authenticate(@RequestBody LoginDto loginUserDto) {
         UserDetails authenticatedUser = authenticationService.authenticate(loginUserDto);
-
 		String jwtToken = jwtService.generateToken(authenticatedUser);
-
-		LoginResponse loginResponse = new LoginResponse(jwtToken, jwtService.getExpirationTime());
-
+		LoginResponseDto loginResponse = new LoginResponseDto(jwtToken, jwtService.getExpirationTime());
 		return ResponseEntity.ok(loginResponse);
 	}
 }
