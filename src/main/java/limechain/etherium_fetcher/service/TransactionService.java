@@ -51,7 +51,7 @@ public class TransactionService {
     @Transactional
     public Collection<Transaction> findByHashList(List<String> hashes) throws IOException, TransactionException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        final User user = authentication.isAuthenticated() ? userRepository.findByUsername(authentication.getPrincipal().toString()).orElseThrow() : null;
+        final User user = authentication.isAuthenticated() ? (User) authentication.getPrincipal() : null;
 
         Set<String> sourceTransactions = new HashSet<>(hashes);
         log.debug("Looking transactions at DB for hashes: {}", sourceTransactions);
@@ -59,6 +59,7 @@ public class TransactionService {
         log.debug("Found transactions at DB for hashes: {}", existingTransactions);
         if (user != null) {
             existingTransactions.forEach(trx -> trx.getUsers().add(user));
+            user.getTransactions().addAll(existingTransactions);
         } else {
             log.debug("User is not authorized");
         }
@@ -81,6 +82,9 @@ public class TransactionService {
                 log.debug("Transaction was stored to DB: {}", transaction);
             });
             existingTransactions.addAll(remainTransactions);
+        }
+        if (user != null) {
+            userRepository.save(user);
         }
         return existingTransactions;
     }

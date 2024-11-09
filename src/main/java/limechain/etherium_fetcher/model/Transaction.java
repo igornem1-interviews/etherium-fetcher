@@ -3,6 +3,7 @@ package limechain.etherium_fetcher.model;
 import java.math.BigInteger;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -47,6 +48,7 @@ public class Transaction extends BaseEntity {
     private String input;
     private BigInteger value;
 
+    @JsonIgnore
     @ManyToMany(mappedBy = "transactions", fetch = FetchType.EAGER)
     private Set<User> users;
 

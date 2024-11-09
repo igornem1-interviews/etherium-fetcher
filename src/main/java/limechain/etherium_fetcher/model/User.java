@@ -2,6 +2,7 @@ package limechain.etherium_fetcher.model;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,8 +35,8 @@ public class User extends BaseEntity implements UserDetails {
 	private String password;
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinTable(name = TABLE_USER_TRANSACTIONS, joinColumns = @JoinColumn(name = "trx_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
-    private List<Transaction> transactions;
+    @JoinTable(name = TABLE_USER_TRANSACTIONS, joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "trx_id", referencedColumnName = "id"))
+    private Set<Transaction> transactions;
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {

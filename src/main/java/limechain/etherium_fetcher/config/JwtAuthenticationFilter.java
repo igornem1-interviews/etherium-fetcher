@@ -36,9 +36,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		final String authHeader = request.getHeader(AUTHORIZATION);
 
 		if (authHeader == null || !authHeader.startsWith(BEARER)) {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            authentication.setAuthenticated(false);
-			filterChain.doFilter(request, response);
+            log.info("User not logged in");
+            setNotAuthenticated(request, response, filterChain);
+            filterChain.doFilter(request, response);
 			return;
 		}
 
@@ -54,7 +54,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				if (jwtService.isTokenValid(jwt, userDetails)) {
 					UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,
 							null, userDetails.getAuthorities());
-
 					authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 					SecurityContextHolder.getContext().setAuthentication(authToken);
 				}
@@ -63,9 +62,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			filterChain.doFilter(request, response);
 		} catch (Exception e) {
 			log.info("JWT tocken not valid, reason: _{}", e.getMessage());
-			UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(null, null);
-			SecurityContextHolder.getContext().setAuthentication(authToken);
-			filterChain.doFilter(request, response);
+            setNotAuthenticated(request, response, filterChain);
+            filterChain.doFilter(request, response);
 		}
 	}
+
+    private void setNotAuthenticated(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(null, null);
+        authToken.setAuthenticated(false);
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+    }
 }
