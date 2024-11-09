@@ -1,23 +1,23 @@
 package limechain.etherium_fetcher.model;
 
-import java.util.Objects;
-
+import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
+import lombok.EqualsAndHashCode;
 
 /**
  * Super class for all entities.
  *
  */
 @MappedSuperclass
-public abstract class BaseEntity extends BaseDateEntity {
-
-    public static final String ID_GEN = "sequence_generator";
+@EqualsAndHashCode(of = "id")
+public abstract class BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = ID_GEN)
+	@GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(columnDefinition = "serial")
     private Long id;
 
     public Long getId() {
@@ -26,26 +26,6 @@ public abstract class BaseEntity extends BaseDateEntity {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        BaseEntity entity = (BaseEntity) o;
-        if (entity.id == null || this.id == null) {
-            return false;
-        }
-        return Objects.equals(entity.id, this.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
     }
 
 }

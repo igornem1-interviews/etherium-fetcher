@@ -5,17 +5,17 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import jakarta.transaction.Transactional;
-import limechain.etherium_fetcher.model.EthereumTransaction;
+import limechain.etherium_fetcher.model.Transaction;
 
-public interface TransactionRepository extends JpaRepository<EthereumTransaction, Long> {
+public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
     public static final String P_DELIMETER = ",:";
     public static final String COMMA = ",";
 
-    List<EthereumTransaction> findByTransactionHashIn(List<String> transactionHashes);
+	List<Transaction> findByHashIn(List<String> hashes);
     
     @Transactional
-    default void saveOne(EthereumTransaction tx) {
+    default void saveOne(Transaction tx) {
         this.save(tx);
     }
 

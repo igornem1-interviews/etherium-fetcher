@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,32 +18,41 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.web3j.protocol.exceptions.TransactionException;
 
-import limechain.etherium_fetcher.model.EthereumTransaction;
-import limechain.etherium_fetcher.service.EheriumTransactionService;
+import limechain.etherium_fetcher.config.Constants;
+import limechain.etherium_fetcher.model.Transaction;
+import limechain.etherium_fetcher.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping(EthereumTransactionController.URI_ROOT)
+@RequestMapping(Constants.URI_ROOT)
 @RequiredArgsConstructor
 @Slf4j
 public class EthereumTransactionController {
 
-    static final String URI_ROOT = "/lime";
     private static final String URI_ALL = "/all";
     private static final String URI_ETH = "/eth";
     private static final String PARAM_RLPHEX = "rlphex";
     private static final String PARAM_TRANSACTION_HASHES = "transactionHashes";
 
-    private final EheriumTransactionService service;
+    private final TransactionService service;
 
     @GetMapping(URI_ALL)
-    ResponseEntity<Collection<EthereumTransaction>> findAll() {
+    ResponseEntity<Collection<Transaction>> findAll() {
         return new ResponseEntity<>(service.findAll(), HttpStatus.OK);
     }
 
     @GetMapping(URI_ETH)
-    ResponseEntity<Collection<EthereumTransaction>> findByHashList(@RequestParam(value = PARAM_TRANSACTION_HASHES) List<String> transactionHashes) {
+    ResponseEntity<Collection<Transaction>> findByHashList(@RequestParam(value = PARAM_TRANSACTION_HASHES) List<String> transactionHashes) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String username = authentication.getName();
+
+		if (username != null) {
+			log.debug("Request not authorised");
+		} else {
+			log.debug("Request authorised, user:{}", username);
+		}
+
         if (CollectionUtils.isEmpty(transactionHashes)) {
             return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
         } else {
@@ -55,7 +66,7 @@ public class EthereumTransactionController {
     }
 
     @GetMapping(URI_ETH + "/{" + PARAM_RLPHEX + "}")
-    ResponseEntity<Collection<EthereumTransaction>> findByRlphex(@PathVariable(name = PARAM_RLPHEX) String rlphexHashes) throws IOException, TransactionException {
+    ResponseEntity<Collection<Transaction>> findByRlphex(@PathVariable(name = PARAM_RLPHEX) String rlphexHashes) throws IOException, TransactionException {
         if (ObjectUtils.isEmpty(rlphexHashes)) {
             return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
         } else {

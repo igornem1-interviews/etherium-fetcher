@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.web3j.protocol.Web3j;
-import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.exceptions.TransactionException;
 import org.web3j.protocol.http.HttpService;
@@ -21,35 +20,35 @@ import org.web3j.rlp.RlpList;
 import org.web3j.rlp.RlpString;
 import org.web3j.rlp.RlpType;
 
-import limechain.etherium_fetcher.model.EthereumTransaction;
+import limechain.etherium_fetcher.model.Transaction;
 import limechain.etherium_fetcher.repository.TransactionRepository;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class EheriumTransactionService {
+public class TransactionService {
 
     private final Web3j web3j;
     private final TransactionRepository repository;
 
-    public EheriumTransactionService(@Value("${ethereum.node.url}") String ethereumNodeUrl, TransactionRepository transactionRecordRepository) {
+    public TransactionService(@Value("${ethereum.node.url}") String ethereumNodeUrl, TransactionRepository transactionRecordRepository) {
         this.web3j = Web3j.build(new HttpService(ethereumNodeUrl));
         this.repository = transactionRecordRepository;
     }
 
-    public Collection<EthereumTransaction> findAll() {
+    public Collection<Transaction> findAll() {
         return repository.findAll();
     }
 
-    public Collection<EthereumTransaction> findByHashList(List<String> hashes) throws IOException, TransactionException {
+    public Collection<Transaction> findByHashList(List<String> hashes) throws IOException, TransactionException {
         Set<String> sourceTransactions = new HashSet<>(hashes);
         log.debug("Looking transactions at DB for hashes: {}", sourceTransactions);
-        List<EthereumTransaction> existingTransactions = repository.findByTransactionHashIn(hashes);
+		List<Transaction> existingTransactions = repository.findByHashIn(hashes);
         log.debug("Found transactions at DB for hashes: {}", existingTransactions);
         if (existingTransactions.size() != sourceTransactions.size()) {
-            existingTransactions.stream().forEach(t -> sourceTransactions.remove(t.getTransactionHash()));
+			existingTransactions.stream().forEach(t -> sourceTransactions.remove(t.getHash()));
             log.debug("Transactions not in DB for hashes: {}", sourceTransactions);
-            List<EthereumTransaction> remainTransactions = getFromBlockChain(sourceTransactions);
+            List<Transaction> remainTransactions = getFromBlockChain(sourceTransactions);
 
             remainTransactions.forEach(transaction -> {
                 try {
@@ -57,7 +56,7 @@ public class EheriumTransactionService {
                 } catch (DataIntegrityViolationException de) {
                     Throwable cause = de.getCause();
                     if (cause == null || cause.getClass() != ConstraintViolationException.class
-                            || !EthereumTransaction.UQ_TRANSACTION_HASH.equals(((ConstraintViolationException) cause).getConstraintName())) {
+                            || !Transaction.UQ_TRANSACTION_HASH.equals(((ConstraintViolationException) cause).getConstraintName())) {
                         log.error("Failed to store transaction due to: {}", de, ", transaction: {}", transaction);
                     }
                 }
@@ -68,7 +67,7 @@ public class EheriumTransactionService {
         return existingTransactions;
     }
 
-    public Collection<EthereumTransaction> findByRlphex(String rlphexHashes) throws IOException, TransactionException {
+    public Collection<Transaction> findByRlphex(String rlphexHashes) throws IOException, TransactionException {
         return findByHashList(decodeRlpAndGetTransactions(rlphexHashes));
     }
 
@@ -103,14 +102,14 @@ public class EheriumTransactionService {
         return transactionHashes;
     }
 
-    private List<EthereumTransaction> getFromBlockChain(Set<String> transactionHashes) throws IOException, TransactionException {
+    private List<Transaction> getFromBlockChain(Set<String> transactionHashes) throws IOException, TransactionException {
         log.debug("Looking transactions from blockchain for list:" + transactionHashes);
-        List<EthereumTransaction> transactions = new ArrayList<>();
+        List<Transaction> transactions = new ArrayList<>();
         for (String txHash : transactionHashes) {
-            Transaction tx = web3j.ethGetTransactionByHash(txHash).send().getTransaction().orElse(null);
+            org.web3j.protocol.core.methods.response.Transaction tx = web3j.ethGetTransactionByHash(txHash).send().getTransaction().orElse(null);
             if (tx != null) {
                 TransactionReceipt txReceipt = web3j.ethGetTransactionReceipt(tx.getHash()).send().getTransactionReceipt().orElse(null);
-                EthereumTransaction ethereumTransaction = toEthereumTransaction(tx, txReceipt);
+                Transaction ethereumTransaction = toEthereumTransaction(tx, txReceipt);
                 transactions.add(ethereumTransaction);
                 log.debug("Got transaction via web3: {}", ethereumTransaction);
             }
@@ -118,10 +117,11 @@ public class EheriumTransactionService {
         return transactions;
     }
 
-    public EthereumTransaction toEthereumTransaction(Transaction tx, TransactionReceipt txReceipt) throws IOException, TransactionException {
+    private static Transaction toEthereumTransaction(org.web3j.protocol.core.methods.response.Transaction tx, TransactionReceipt txReceipt)
+            throws IOException, TransactionException {
         boolean transactionStatus = txReceipt != null && txReceipt.isStatusOK() ? true : false;
         int logsCount = txReceipt != null ? txReceipt.getLogs().size() : 0;
-        return new EthereumTransaction(null, tx.getHash(), transactionStatus, tx.getBlockHash(), tx.getBlockNumber(), tx.getFrom(), tx.getTo(), tx.getCreates(), logsCount,
+        return new Transaction(tx.getHash(), transactionStatus, tx.getBlockHash(), tx.getBlockNumber(), tx.getFrom(), tx.getTo(), tx.getCreates(), logsCount,
                 tx.getInput(), tx.getValue());
     }
 
