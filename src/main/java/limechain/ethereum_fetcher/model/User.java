@@ -17,7 +17,6 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -26,7 +25,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class User extends BaseEntity implements UserDetails {
     private static final String FIELD_ID = "id";
     private static final String FIELD_TRX_ID = "trx_id";
