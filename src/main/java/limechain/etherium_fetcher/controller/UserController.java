@@ -13,20 +13,22 @@ import org.springframework.web.bind.annotation.RestController;
 import limechain.etherium_fetcher.config.Constants;
 import limechain.etherium_fetcher.model.Transaction;
 import limechain.etherium_fetcher.model.User;
+import limechain.etherium_fetcher.service.UserService;
+import lombok.RequiredArgsConstructor;
 
-@RequestMapping(Constants.URI_ROOT)
 @RestController
+@RequiredArgsConstructor
+@RequestMapping(Constants.URI_ROOT)
 public class UserController {
+    private static final String URI_MY = "/my";
+    private final UserService userService;
 
-    @GetMapping("/my")
+    @GetMapping(URI_MY)
     public ResponseEntity<List<Transaction>> usersTransactions() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (!authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-		User currentUser = (User) authentication.getPrincipal();
-
-        return ResponseEntity.ok(List.copyOf(currentUser.getTransactions()));
+        return ResponseEntity.ok(List.copyOf(userService.usersTransactions((User) authentication.getPrincipal())));
 	}
-
 }

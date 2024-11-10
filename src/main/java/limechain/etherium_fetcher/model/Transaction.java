@@ -16,10 +16,12 @@ import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = Transaction.TABLE_NAME, uniqueConstraints = { @UniqueConstraint(name = Transaction.UQ_TRANSACTION_HASH, columnNames = { Transaction.TRANSACTION_HASH }) })
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Transaction extends BaseEntity {
@@ -34,22 +36,30 @@ public class Transaction extends BaseEntity {
     private String hash;
 
     private Boolean status;
+
     @Column(columnDefinition = "TEXT")
     private String blockHash;
+
     private BigInteger blockNumber;
+
     @Column(name = FROM_, columnDefinition = "TEXT")
     private String from;
+
     @Column(name = TO_, columnDefinition = "TEXT")
     private String to;
+
     @Column(columnDefinition = "TEXT")
     private String contractAddress;
+
     private Integer logsCount;
+
     @Column(columnDefinition = "TEXT")
     private String input;
+
     private BigInteger value;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "transactions", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "transactions", fetch = FetchType.LAZY)
     private Set<User> users;
 
     @Override

@@ -11,6 +11,7 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
@@ -25,6 +26,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class User extends BaseEntity implements UserDetails {
+    private static final String FIELD_ID = "id";
+    private static final String FIELD_TRX_ID = "trx_id";
+    private static final String FIELD_USER_ID = "user_id";
     private static final String TABLE_USER_TRANSACTIONS = "user_transactions";
     static final String TABLE_NAME = "users";
 
@@ -34,8 +38,11 @@ public class User extends BaseEntity implements UserDetails {
 	@Column(nullable = false)
 	private String password;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinTable(name = TABLE_USER_TRANSACTIONS, joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "trx_id", referencedColumnName = "id"))
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinTable(name = TABLE_USER_TRANSACTIONS, 
+               joinColumns        = @JoinColumn(name = FIELD_USER_ID, referencedColumnName = FIELD_ID), 
+               inverseJoinColumns = @JoinColumn(name = FIELD_TRX_ID, referencedColumnName = FIELD_ID),
+               indexes = {@Index(name = "idx_"+FIELD_USER_ID, columnList = FIELD_USER_ID)})
     private Set<Transaction> transactions;
 
 	@Override

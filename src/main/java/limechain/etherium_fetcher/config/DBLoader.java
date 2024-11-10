@@ -26,11 +26,13 @@ public class DBLoader {
     CommandLineRunner initDatabase() {
         return args -> {
             users.forEach(user -> fetchOrCreate(user));
-            log.info(System.lineSeparator() + "**************************************************************"
+            log.info(System.lineSeparator()
+                   + System.lineSeparator() + "**************************************************************"
                    + System.lineSeparator() + "* Users credentials loaded into system(username / password): *"
                    + System.lineSeparator() + "**************************************************************"
                    + System.lineSeparator()+users.stream().map(name -> name + " / " + name).collect(Collectors.joining(System.lineSeparator()))
-                   + System.lineSeparator() + "**************************************************************");
+                   + System.lineSeparator() + "**************************************************************"
+                   + System.lineSeparator());
         };
     }
 

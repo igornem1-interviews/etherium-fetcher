@@ -51,26 +51,28 @@ public class TransactionService {
     @Transactional
     public Collection<Transaction> findByHashList(List<String> hashes) throws IOException, TransactionException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        final User user = authentication.isAuthenticated() ? (User) authentication.getPrincipal() : null;
-
+        final User user = authentication.isAuthenticated() ? userRepository.findById(((User) authentication.getPrincipal()).getId()).orElseThrow() : null;
+        if (user != null) {
+            log.debug("User is authorized");
+        }
         Set<String> sourceTransactions = new HashSet<>(hashes);
         log.debug("Looking transactions at DB for hashes: {}", sourceTransactions);
-		List<Transaction> existingTransactions = repository.findByHashIn(hashes);
+
+        List<Transaction> existingTransactions = repository.findByHashIn(hashes);
         log.debug("Found transactions at DB for hashes: {}", existingTransactions);
-        if (user != null) {
-            existingTransactions.forEach(trx -> trx.getUsers().add(user));
-            user.getTransactions().addAll(existingTransactions);
-        } else {
-            log.debug("User is not authorized");
-        }
+
         if (existingTransactions.size() != sourceTransactions.size()) {
             existingTransactions.forEach(t -> sourceTransactions.remove(t.getHash()));
             log.debug("Transactions not in DB for hashes: {}", sourceTransactions);
-            List<Transaction> remainTransactions = getFromBlockChain(sourceTransactions, user);
+
+            List<Transaction> remainTransactions = getFromBlockChain(sourceTransactions);
 
             remainTransactions.forEach(transaction -> {
                 try {
-                    repository.saveOne(transaction);
+                    if (user != null) {
+                        transaction.setUsers(Set.of(user));
+                    }
+                    transaction = repository.saveOne(transaction);
                 } catch (DataIntegrityViolationException de) {
                     Throwable cause = de.getCause();
                     if (cause == null || cause.getClass() != ConstraintViolationException.class
@@ -81,11 +83,17 @@ public class TransactionService {
                 }
                 log.debug("Transaction was stored to DB: {}", transaction);
             });
+
             existingTransactions.addAll(remainTransactions);
         }
+
         if (user != null) {
+            user.getTransactions().addAll(existingTransactions);
             userRepository.save(user);
+        } else {
+            log.debug("User is not authorized, transactions not bound to his account");
         }
+
         return existingTransactions;
     }
 
@@ -124,14 +132,14 @@ public class TransactionService {
         return transactionHashes;
     }
 
-    private List<Transaction> getFromBlockChain(Set<String> transactionHashes, User user) throws IOException, TransactionException {
+    private List<Transaction> getFromBlockChain(Set<String> transactionHashes) throws IOException, TransactionException {
         log.debug("Looking transactions from blockchain for list:" + transactionHashes);
         List<Transaction> transactions = new ArrayList<>();
         for (String txHash : transactionHashes) {
             org.web3j.protocol.core.methods.response.Transaction tx = web3j.ethGetTransactionByHash(txHash).send().getTransaction().orElse(null);
             if (tx != null) {
                 TransactionReceipt txReceipt = web3j.ethGetTransactionReceipt(tx.getHash()).send().getTransactionReceipt().orElse(null);
-                Transaction ethereumTransaction = toEthereumTransaction(tx, txReceipt, user);
+                Transaction ethereumTransaction = toEthereumTransaction(tx, txReceipt);
                 transactions.add(ethereumTransaction);
                 log.debug("Got transaction via web3: {}", ethereumTransaction);
             }
@@ -139,12 +147,12 @@ public class TransactionService {
         return transactions;
     }
 
-    private static Transaction toEthereumTransaction(org.web3j.protocol.core.methods.response.Transaction tx, TransactionReceipt txReceipt, User user)
+    private static Transaction toEthereumTransaction(org.web3j.protocol.core.methods.response.Transaction tx, TransactionReceipt txReceipt)
             throws IOException, TransactionException {
         boolean transactionStatus = txReceipt != null && txReceipt.isStatusOK() ? true : false;
         int logsCount = txReceipt != null ? txReceipt.getLogs().size() : 0;
         return new Transaction(tx.getHash(), transactionStatus, tx.getBlockHash(), tx.getBlockNumber(), tx.getFrom(), tx.getTo(), tx.getCreates(), logsCount,
-                tx.getInput(), tx.getValue(), Set.of(user));
+                tx.getInput(), tx.getValue(), null);
     }
 
 }
