@@ -26,6 +26,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Transaction extends BaseEntity {
 
+    private static final String VALUE_ = "value_";
     private static final String FROM_ = "from_";
     private static final String TO_ = "to_";
     private static final String TABLE_NAME = "transaction";
@@ -56,6 +57,7 @@ public class Transaction extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String input;
 
+    @Column(name = VALUE_)
     private BigInteger value;
 
     @JsonIgnore

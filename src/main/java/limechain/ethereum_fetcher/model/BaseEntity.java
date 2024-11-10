@@ -1,6 +1,5 @@
 package limechain.ethereum_fetcher.model;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -17,7 +16,6 @@ public abstract class BaseEntity {
 
     @Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(columnDefinition = "serial")
     private Long id;
 
     public Long getId() {
