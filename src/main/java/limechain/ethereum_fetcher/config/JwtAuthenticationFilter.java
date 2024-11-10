@@ -60,7 +60,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 			filterChain.doFilter(request, response);
 		} catch (Exception e) {
-			log.info("JWT tocken not valid, reason: _{}", e.getMessage());
+			log.info("JWT token not valid, reason: _{}", e.getMessage());
             setNotAuthenticated(request, response, filterChain);
             filterChain.doFilter(request, response);
 		}

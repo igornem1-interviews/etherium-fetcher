@@ -1,6 +1,8 @@
 package limechain.ethereum_fetcher.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,9 +26,13 @@ public class AuthenticationController {
 
     @PostMapping(AuthenticationController.URI_AUTH)
 	public ResponseEntity<LoginResponseDto> authenticate(@RequestBody LoginDto loginUserDto) {
-        UserDetails authenticatedUser = authenticationService.authenticate(loginUserDto);
-		String jwtToken = jwtService.generateToken(authenticatedUser);
-		LoginResponseDto loginResponse = new LoginResponseDto(jwtToken, jwtService.getExpirationTime());
+        UserDetails authenticatedUser = null;
+        try {
+            authenticatedUser = authenticationService.authenticate(loginUserDto);
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        LoginResponseDto loginResponse = new LoginResponseDto(jwtService.generateToken(authenticatedUser));
 		return ResponseEntity.ok(loginResponse);
 	}
 }
