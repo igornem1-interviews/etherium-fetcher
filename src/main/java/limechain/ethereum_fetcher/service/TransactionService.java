@@ -64,8 +64,10 @@ public class TransactionService {
         log.debug("Found {} transactions at DB", existingTransactions.size());
 
         if (existingTransactions.size() != lookingHashes.size()) {
+
             existingTransactions.forEach(t -> lookingHashes.remove(t.getHash()));
             log.debug("Looking transactions at blockchain for {} hashes: {}", lookingHashes.size(), lookingHashes);
+
             List<Transaction> remainTransactions = getFromBlockChain(lookingHashes);
             log.debug("Received {} transactions from blockchain, go to store them", remainTransactions.size());
 
@@ -85,6 +87,7 @@ public class TransactionService {
                 }
                 log.debug("Stored transaction: {}", transaction);
             });
+
             log.debug("Stored {} transactions", remainTransactions.size());
             existingTransactions.addAll(remainTransactions);
         }
@@ -109,7 +112,7 @@ public class TransactionService {
         return data;
     }
 
-    private List<String> decodeRlpAndGetTransactions(String rlphex) {
+    List<String> decodeRlpAndGetTransactions(String rlphex) {
         byte[] rlpEncodedBytes = hexStringToByteArray(rlphex);
 
         RlpList rlpList = RlpDecoder.decode(rlpEncodedBytes);
