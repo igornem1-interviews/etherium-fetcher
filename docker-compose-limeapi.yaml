@@ -1,0 +1,27 @@
+services:
+  limeapi-builder:
+    image: maven:3.8.3-openjdk-17
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: mvn clean package -DskipTests
+
+  limeapi:
+    build:
+      context: .
+      dockerfile: Dockerfile.limeapi
+    image: limeapi
+    depends_on:
+      - limeapi-builder
+    networks:
+      - limeapi-network
+    environment:
+        - DB_HOST=pg  # Указываем правильный хост для подключения к базе данных
+        - DB_PORT=5432
+        - DB_USER=${PG_USER:-limechain}
+        - DB_PASSWORD=${PG_PASSWORD:-limechain}
+        - DB_NAME=${PG_DATABASE_NAME:-postgres}
+
+networks:
+   limeapi-network:
+     external: true

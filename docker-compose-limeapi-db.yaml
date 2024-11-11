@@ -1,3 +1,7 @@
+networks:
+   limeapi-network:
+     external: true
+
 services:
   pg:
     container_name: etherium-fetcher-postgress
@@ -9,6 +13,8 @@ services:
       - POSTGRES_SSL_MODE=allow
     ports:
       - "${PG_PORT:-54322}:5432"
+    networks:
+      - limeapi-network
     volumes:
       - type: volume
         source: ''

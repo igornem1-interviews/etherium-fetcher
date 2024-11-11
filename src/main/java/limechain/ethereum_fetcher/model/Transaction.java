@@ -29,7 +29,7 @@ public class Transaction extends BaseEntity {
     private static final String VALUE_ = "value_";
     private static final String FROM_ = "from_";
     private static final String TO_ = "to_";
-    private static final String TABLE_NAME = "transaction";
+    static final String TABLE_NAME = "transaction";
     static final String TRANSACTION_HASH = "hash";
     public static final String UQ_TRANSACTION_HASH = "UQ_" + Transaction.TRANSACTION_HASH;
 
