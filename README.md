@@ -410,11 +410,39 @@ The server can be build into image and run in Docker.
 
 ## Documentation
 
-Improve the documentation with:
+### C4 diagrams of the application
+  In project root there are 4 diagrams:
+  Fig1-System Context Diagram.svg
+  Fig2-Container Diagram.svg
+  Fig3-Component Diagram.svg
+  Fig4-Class Diagram.png
+  
+### How would you improve the API? Reasoning around the design choices and tradeoffs
+  a. Introduce versioning for backward compatibility for case more deployment flexibility and especially if we'll have frequent updates 
+  b. Introduce rate limiting for cases of Ddos and similar abuse.
 
-- C4 diagrams of the application
-- How would you improve the API? Reasoning around the design choices and tradeoffs
-- Your strategy for Continuous Integration of the API
-- Your strategy for Scalability of the service
-- How would you approach making this service paid? How would the architecture change?
-- How would you approach failing Ethereum Node URL?
+
+### Your strategy for Continuous Integration of the API
+   1. Setup deployment pipelines using CI/CD tools like GitHub actions/BitBucket pipelines/Jenkins etc. to include into it automated tests
+      like unit tests which are developed in scope of this tasks and integration/end-to-end tests as well.
+   2. Add static code analyser and security scan like SonarQube then it will help earlier avoid vulnerabilities and also improve code quality.
+
+### Your strategy for Scalability of the service
+   1. Make microservice architecture: separate authentication service, user service and transactions service and make autoscaled multiple instances cluster 
+   2. Make distributed database by sharding and load balancing based on shards separation rules
+   3. Thorough DB tables indexing definitions
+   4. Separate databases accordingly to master-secondary paradigm to separate write operations from read operations
+   5. Setup autoscaling accordingly to load waves
+   6. Introduce dedicated in-memory cache for frequently requested data
+
+### How would you approach making this service paid? How would the architecture change?
+   1. Introduse free and paid plans of service use. In free plan restrict or reduce some features which are available at paid plan,
+      e.g. amount of requests per certain time periods, or supply data with longer latency than in paid plan.
+   2. Additional services to be for paid plans only such as 2fa authentication.
+      The architecture would than got additional service which will monitor users activity and his plan, some more logging channels would 
+      be introduced to log user's activity 
+      
+### How would you approach failing Ethereum Node URL?
+   1. Keep multiple Ethereum nodes to be allowed switch between them in case of some is fail
+   2. Introduce monitoring and alerting services to inform the team that some actions should be performed
+   
