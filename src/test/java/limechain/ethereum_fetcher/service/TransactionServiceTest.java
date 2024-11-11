@@ -43,7 +43,6 @@ public class TransactionServiceTest {
     private static final String ALICE = "alice";
     private static final String HASH1 = "hash1";
     private static final String HASH2 = "hash2";
-    private static final String HASH3 = "hash3";
 
     @Mock
     private Web3j web3j;
