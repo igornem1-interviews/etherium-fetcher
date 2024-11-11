@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.web3j.protocol.exceptions.TransactionException;
 
 import limechain.ethereum_fetcher.config.Constants;
+import limechain.ethereum_fetcher.dto.TransactionsDto;
 import limechain.ethereum_fetcher.model.Transaction;
 import limechain.ethereum_fetcher.service.TransactionService;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,7 @@ public class TransactionController {
 
     @GetMapping(URI_ALL)
     ResponseEntity<Collection<Transaction>> findAll() {
-        return new ResponseEntity<>(service.findAll(), HttpStatus.OK);
+        return new ResponseEntity(new TransactionsDto(service.findAll()), HttpStatus.OK);
     }
 
     @GetMapping(URI_ETH)
@@ -46,10 +47,10 @@ public class TransactionController {
             return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
         } else {
             try {
-                return new ResponseEntity<>(service.findByHashList(transactionHashes), HttpStatus.OK);
+                return new ResponseEntity(new TransactionsDto(service.findByHashList(transactionHashes)), HttpStatus.OK);
             } catch (IOException | TransactionException e) {
                 log.error(e.getMessage(), e);
-                return new ResponseEntity<>(Collections.emptyList(), HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
     }
@@ -60,10 +61,10 @@ public class TransactionController {
             return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
         } else {
             try {
-                return new ResponseEntity<>(service.findByRlphex(rlphexHashes), HttpStatus.OK);
+                return new ResponseEntity(new TransactionsDto(service.findByRlphex(rlphexHashes)), HttpStatus.OK);
             } catch (IOException | TransactionException e) {
                 log.error(e.getMessage(), e);
-                return new ResponseEntity<>(Collections.emptyList(), HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
 

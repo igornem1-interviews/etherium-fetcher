@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import limechain.ethereum_fetcher.config.Constants;
+import limechain.ethereum_fetcher.dto.TransactionsDto;
 import limechain.ethereum_fetcher.model.Transaction;
 import limechain.ethereum_fetcher.model.User;
 import limechain.ethereum_fetcher.service.UserService;
@@ -29,6 +30,6 @@ public class UserController {
         if (!authentication.isAuthenticated()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        return ResponseEntity.ok(List.copyOf(userService.usersTransactions((User) authentication.getPrincipal())));
+        return new ResponseEntity(new TransactionsDto(userService.usersTransactions((User) authentication.getPrincipal())), HttpStatus.OK);
 	}
 }
