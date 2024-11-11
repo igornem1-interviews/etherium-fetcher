@@ -101,11 +101,7 @@ public class TransactionServiceTest {
         when(web3Transaction.getFrom()).thenReturn("from");
         when(web3Transaction.getTo()).thenReturn("to");
 
-        Request requestTransaction = mock(Request.class);
-        when(web3j.ethGetTransactionByHash(HASH1)).thenReturn(requestTransaction);
-        org.web3j.protocol.core.methods.response.EthTransaction ethTransaction = mock(EthTransaction.class);
-        when(ethTransaction.getTransaction()).thenReturn(Optional.of(web3Transaction));
-        when(requestTransaction.send()).thenReturn(ethTransaction);
+        mockWeb3j(web3Transaction);
 
         Request requestTransactionReceipt = mock(Request.class);
         when(web3j.ethGetTransactionReceipt(HASH1)).thenReturn(requestTransactionReceipt);
@@ -125,11 +121,7 @@ public class TransactionServiceTest {
         List<String> hashes = Collections.singletonList(HASH1);
         when(transactionRepository.findByHashIn(hashes)).thenReturn(new ArrayList<Transaction>());
 
-        Request requestTransaction = mock(Request.class);
-        when(web3j.ethGetTransactionByHash(any())).thenReturn(requestTransaction);
-        org.web3j.protocol.core.methods.response.EthTransaction ethTransaction = mock(EthTransaction.class);
-        when(ethTransaction.getTransaction()).thenReturn(Optional.ofNullable(null));
-        when(requestTransaction.send()).thenReturn(ethTransaction);
+        mockWeb3j(null);
 
         Collection<Transaction> result = transactionService.findByHashList(hashes);
 
@@ -138,9 +130,7 @@ public class TransactionServiceTest {
 
     @Test
     public void testFindByHashList_UserAuthenticated() throws IOException, TransactionException {
-        // Мокаем данные
-        String transactionHash = "0x123";
-        List<String> hashes = Collections.singletonList(transactionHash);
+        List<String> hashes = Collections.singletonList(HASH1);
         User user = new User();
         user.setId(1L);
         Authentication authentication = mock(Authentication.class);
@@ -160,20 +150,30 @@ public class TransactionServiceTest {
         Collection<Transaction> result = transactionService.findByHashList(hashes);
 
         assertThat(result).hasSize(1);
-        assertThat(result.iterator().next().getHash()).isEqualTo(transactionHash);
+        assertThat(result.iterator().next().getHash()).isEqualTo(HASH1);
     }
 
     @Test
     public void testDecodeRlpAndGetTransactions() {
-        String rlpHex = "0x80";
-        List<String> decodedHashes = Arrays.asList("0x123", "0x456");
+        String rlpHex = "f884a0fc2b3b6db38a51db3b9cb95de29b719de8deb99630626e4b4b99df056ffb7f2ea048603f7adff7fbfc2a10b22a6710331ee68f2e4d1cd73a584d57c8821df79356a0cbc920e7bb89cbcb540a469a16226bf1057825283ab8eac3f45d00811eef8a64a06d604ffc644a282fca8cb8e778e1e3f8245d8bd1d49326e3016a3c878ba0cbbd";
+        List<String> decodedHashes = Arrays.asList("0xfc2b3b6db38a51db3b9cb95de29b719de8deb99630626e4b4b99df056ffb7f2e", 
+                "0xcbc920e7bb89cbcb540a469a16226bf1057825283ab8eac3f45d00811eef8a64",
+                "0x6d604ffc644a282fca8cb8e778e1e3f8245d8bd1d49326e3016a3c878ba0cbbd",
+                "0x48603f7adff7fbfc2a10b22a6710331ee68f2e4d1cd73a584d57c8821df79356");
         List<String> result = transactionService.decodeRlpAndGetTransactions(rlpHex);
-        assertThat(result).isEqualTo(decodedHashes);
+        assertThat(result).containsExactlyInAnyOrderElementsOf(decodedHashes);
     }
 
     private Transaction createTransaction(String hash) {
         return new Transaction(hash, Boolean.TRUE, hash, BigInteger.TWO, hash, hash, hash, 5, hash, BigInteger.TEN, null);
     }
 
+    private void mockWeb3j(org.web3j.protocol.core.methods.response.Transaction web3Transaction) throws IOException {
+        Request requestTransaction = mock(Request.class);
+        when(web3j.ethGetTransactionByHash(HASH1)).thenReturn(requestTransaction);
+        org.web3j.protocol.core.methods.response.EthTransaction ethTransaction = mock(EthTransaction.class);
+        when(ethTransaction.getTransaction()).thenReturn(Optional.ofNullable(web3Transaction));
+        when(requestTransaction.send()).thenReturn(ethTransaction);
+    }
 }
 

@@ -103,7 +103,7 @@ public class TransactionService {
         return findByHashList(decodeRlpAndGetTransactions(rlphexHashes));
     }
 
-    private byte[] hexStringToByteArray(String hex) {
+    private static byte[] hexStringToByteArray(String hex) {
         int len = hex.length();
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
@@ -112,7 +112,7 @@ public class TransactionService {
         return data;
     }
 
-    List<String> decodeRlpAndGetTransactions(String rlphex) {
+    static List<String> decodeRlpAndGetTransactions(String rlphex) {
         byte[] rlpEncodedBytes = hexStringToByteArray(rlphex);
 
         RlpList rlpList = RlpDecoder.decode(rlpEncodedBytes);
