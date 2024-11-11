@@ -54,10 +54,13 @@ This is an upgrade over the first endpoint with the only difference being the wa
 
 ### Architecture of the server - design decisions and overview
 
-Architecture consists of three tiers: Controllers, Services, Repositories.
+Architecture consists of three tiers: Controllers, Services, Repositories, they located respectively at packages: limechain.ethereum_fetcher.controller, limechain.ethereum_fetcher.service, limechain.ethereum_fetcher.repository.
+There are packages for DB models and DTOs: limechain.ethereum_fetcher.model and limechain.ethereum_fetcher.dto
+Spring configurations are located at package: limechain.ethereum_fetcher.config
+
 Rest request arrives to specific controller's method then flow calls specific service which executes a business logic.
 The business logic can turn to other services or to repositories. 
-Repositories perform CRUD operations with DB. 
+Repositories performs CRUD operations with DB. 
 
 ### Server Configuration
 There is file .env at root of the project, it contains all following environmental variables:
@@ -139,7 +142,6 @@ curl -X GET 'http://127.0.0.1:8001/lime/eth?transactionHashes=0x48603f7adff7fbfc
     ]
 }
 ```
-
 
 #### Endpoint: 
 `/lime/eth/:rlphex``
@@ -279,6 +281,8 @@ curl -X GET 'http://127.0.0.1:8001/lime/all'
 
 ## Endpoint `/lime/authenticate`
 
+Used to achieve JWT
+
 #### Request
 
 ```jsx
@@ -298,17 +302,15 @@ curl --location 'http://127.0.0.1:8001/lime/authenticate' \
 }
 ```
 
-The following user and password combinations work:
+The following user and password combinations loaded into system upon start:
 
 - `alice`/ `alice`
 - `bob`/ `bob`
 - `carol` / `carol`
 - `dave`/ `dave`
 
-
-## Endpoint Change: JWT for `/lime/eth?transactionHashes`  and `/lime/eth/:rlphex`
-
-Allow both endpoints to have a header `AUTH_TOKEN` - the JWT token of a user. If the JWT token is provided, the server will remember that this user has asked for these specific transaction hashes and will send them by endpoint `/lime/my`
+The aforementioned JWT allow endpoints `/lime/eth?transactionHashes` and `/lime/eth/:rlphex` to have a header `AUTH_TOKEN` - the JWT token of a user. 
+If the JWT token is provided, the server will remember that this user has asked for these specific transaction hashes and will send them by endpoint `/lime/my`
 
 ## Endpoint `/lime/my`
 
@@ -395,11 +397,13 @@ mvn test
 
 ## Dockerized server
 
+The server can be build into image and run in Docker.
 1. Create docker image with tag limeapi by executing script:
 
 ./buildapp.sh
 
-Server runnable via `sudo docker run -p 8001:8001 --network limeapi-network limeapi` or script ./startapp.sh
+2.Server runnable via 
+`sudo docker run -p 8001:8001 --network limeapi-network limeapi` or script ./startapp.sh
 
 
 # [Optional] Architect Requirements
