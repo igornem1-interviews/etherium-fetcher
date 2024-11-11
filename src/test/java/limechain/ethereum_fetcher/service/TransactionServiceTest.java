@@ -156,7 +156,8 @@ public class TransactionServiceTest {
     public void testFindByHashList_UserAuthenticated() throws IOException, TransactionException {
         when(authentication.isAuthenticated()).thenReturn(true);
         User user = new User(ALICE, ALICE, new HashSet<Transaction>());
-        when(authentication.getPrincipal()).thenReturn(true);
+        when(authentication.getPrincipal()).thenReturn(user);
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
 
         List<String> hashes = Collections.singletonList(HASH1);
         when(transactionRepository.findByHashIn(hashes)).thenReturn(new ArrayList<Transaction>());
@@ -179,7 +180,10 @@ public class TransactionServiceTest {
         Collection<Transaction> result = transactionService.findByHashList(hashes);
 
         assertThat(result).hasSize(1);
-        assertThat(result.iterator().next().getHash()).isEqualTo(HASH1);
+        Transaction trx = result.iterator().next();
+        assertThat(trx.getHash()).isEqualTo(HASH1);
+        assertThat(user.getTransactions().size()).isEqualTo(1);
+        assertThat(user.getTransactions()).containsExactly(trx);
     }
 
     @Test
