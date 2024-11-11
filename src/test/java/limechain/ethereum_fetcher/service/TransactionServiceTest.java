@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,7 @@ import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.Request;
 import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
 import org.web3j.protocol.core.methods.response.EthTransaction;
+import org.web3j.protocol.core.methods.response.Log;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.exceptions.TransactionException;
 import org.web3j.protocol.http.HttpService;
@@ -37,6 +39,8 @@ import limechain.ethereum_fetcher.repository.TransactionRepository;
 import limechain.ethereum_fetcher.repository.UserRepository;
 
 public class TransactionServiceTest {
+    private static final int LOGS_COUNT = 5;
+    private static final String ALICE = "alice";
     private static final String HASH1 = "hash1";
     private static final String HASH2 = "hash2";
     private static final String HASH3 = "hash3";
@@ -92,14 +96,22 @@ public class TransactionServiceTest {
 
         TransactionReceipt receipt = mock(TransactionReceipt.class);
         when(receipt.isStatusOK()).thenReturn(true);
+        when(receipt.getLogs()).thenReturn(Collections.nCopies(LOGS_COUNT, new Log()));
 
         EthGetTransactionReceipt ethGetTransactionReceipt = mock(EthGetTransactionReceipt.class);
         when(ethGetTransactionReceipt.getTransactionReceipt()).thenReturn(Optional.of(receipt));
 
         org.web3j.protocol.core.methods.response.Transaction web3Transaction = mock(org.web3j.protocol.core.methods.response.Transaction.class);
         when(web3Transaction.getHash()).thenReturn(HASH1);
-        when(web3Transaction.getFrom()).thenReturn("from");
-        when(web3Transaction.getTo()).thenReturn("to");
+        int i = 0;
+        when(web3Transaction.getBlockHash()).thenReturn(HASH1 + i++);
+        when(web3Transaction.getBlockNumber()).thenReturn(BigInteger.ONE);
+        when(web3Transaction.getFrom()).thenReturn(HASH1 + i++);
+        when(web3Transaction.getTo()).thenReturn(HASH1 + i++);
+        when(web3Transaction.getCreates()).thenReturn(HASH1 + i++);
+        when(web3Transaction.getInput()).thenReturn(HASH1 + i++);
+        when(web3Transaction.getValue()).thenReturn(BigInteger.TWO);
+        when(web3Transaction.getValue()).thenReturn(BigInteger.TWO);
 
         mockWeb3j(web3Transaction);
 
@@ -110,7 +122,19 @@ public class TransactionServiceTest {
         Collection<Transaction> result = transactionService.findByHashList(hashes);
 
         assertThat(result).hasSize(1);
-        assertThat(result.iterator().next().getHash()).isEqualTo(HASH1);
+
+        Transaction trx = result.iterator().next();
+        assertThat(trx.getHash()).isEqualTo(HASH1);
+        i = 0;
+        assertThat(web3Transaction.getBlockHash()).isEqualTo(HASH1 + i++);
+        assertThat(trx.getStatus()).isEqualTo(Boolean.TRUE);
+        assertThat(trx.getLogsCount()).isEqualTo(LOGS_COUNT);
+        assertThat(trx.getBlockNumber()).isEqualTo(BigInteger.ONE);
+        assertThat(trx.getFrom()).isEqualTo(HASH1 + i++);
+        assertThat(trx.getTo()).isEqualTo(HASH1 + i++);
+        assertThat(trx.getContractAddress()).isEqualTo(HASH1 + i++);
+        assertThat(trx.getInput()).isEqualTo(HASH1 + i++);
+        assertThat(trx.getValue()).isEqualTo(BigInteger.TWO);
     }
 
     @Test
@@ -130,22 +154,27 @@ public class TransactionServiceTest {
 
     @Test
     public void testFindByHashList_UserAuthenticated() throws IOException, TransactionException {
-        List<String> hashes = Collections.singletonList(HASH1);
-        User user = new User();
-        user.setId(1L);
-        Authentication authentication = mock(Authentication.class);
         when(authentication.isAuthenticated()).thenReturn(true);
-        when(authentication.getPrincipal()).thenReturn(user);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        User user = new User(ALICE, ALICE, new HashSet<Transaction>());
+        when(authentication.getPrincipal()).thenReturn(true);
+
+        List<String> hashes = Collections.singletonList(HASH1);
+        when(transactionRepository.findByHashIn(hashes)).thenReturn(new ArrayList<Transaction>());
 
         TransactionReceipt receipt = mock(TransactionReceipt.class);
         when(receipt.isStatusOK()).thenReturn(true);
+
         EthGetTransactionReceipt ethGetTransactionReceipt = mock(EthGetTransactionReceipt.class);
         when(ethGetTransactionReceipt.getTransactionReceipt()).thenReturn(Optional.of(receipt));
 
         org.web3j.protocol.core.methods.response.Transaction web3Transaction = mock(org.web3j.protocol.core.methods.response.Transaction.class);
-        org.web3j.protocol.core.methods.response.EthTransaction ethTransaction = mock(EthTransaction.class);
-        when(ethTransaction.getTransaction()).thenReturn(Optional.of(web3Transaction));
+        when(web3Transaction.getHash()).thenReturn(HASH1);
+
+        mockWeb3j(web3Transaction);
+
+        Request requestTransactionReceipt = mock(Request.class);
+        when(web3j.ethGetTransactionReceipt(HASH1)).thenReturn(requestTransactionReceipt);
+        when(requestTransactionReceipt.send()).thenReturn(ethGetTransactionReceipt);
 
         Collection<Transaction> result = transactionService.findByHashList(hashes);
 
@@ -165,7 +194,8 @@ public class TransactionServiceTest {
     }
 
     private Transaction createTransaction(String hash) {
-        return new Transaction(hash, Boolean.TRUE, hash, BigInteger.TWO, hash, hash, hash, 5, hash, BigInteger.TEN, null);
+        int i = 0;
+        return new Transaction(hash, Boolean.TRUE, hash + i++, BigInteger.ONE, hash + i++, hash + i++, hash + i++, LOGS_COUNT, hash + i++, BigInteger.TWO, null);
     }
 
     private void mockWeb3j(org.web3j.protocol.core.methods.response.Transaction web3Transaction) throws IOException {
