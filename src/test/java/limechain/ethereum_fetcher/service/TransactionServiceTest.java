@@ -97,15 +97,14 @@ public class TransactionServiceTest {
         when(ethGetTransactionReceipt.getTransactionReceipt()).thenReturn(Optional.of(receipt));
 
         org.web3j.protocol.core.methods.response.Transaction web3Transaction = mock(org.web3j.protocol.core.methods.response.Transaction.class);
-        org.web3j.protocol.core.methods.response.EthTransaction ethTransaction = mock(EthTransaction.class);
-        when(ethTransaction.getTransaction()).thenReturn(Optional.of(web3Transaction));
-
         when(web3Transaction.getHash()).thenReturn(HASH1);
         when(web3Transaction.getFrom()).thenReturn("from");
         when(web3Transaction.getTo()).thenReturn("to");
 
         Request requestTransaction = mock(Request.class);
         when(web3j.ethGetTransactionByHash(HASH1)).thenReturn(requestTransaction);
+        org.web3j.protocol.core.methods.response.EthTransaction ethTransaction = mock(EthTransaction.class);
+        when(ethTransaction.getTransaction()).thenReturn(Optional.of(web3Transaction));
         when(requestTransaction.send()).thenReturn(ethTransaction);
 
         Request requestTransactionReceipt = mock(Request.class);
@@ -116,6 +115,25 @@ public class TransactionServiceTest {
 
         assertThat(result).hasSize(1);
         assertThat(result.iterator().next().getHash()).isEqualTo(HASH1);
+    }
+
+    @Test
+    public void testFindByHashList_NoTransactionsFromDbNeitherBlockchain() throws IOException, TransactionException {
+
+        when(authentication.isAuthenticated()).thenReturn(false);
+
+        List<String> hashes = Collections.singletonList(HASH1);
+        when(transactionRepository.findByHashIn(hashes)).thenReturn(new ArrayList<Transaction>());
+
+        Request requestTransaction = mock(Request.class);
+        when(web3j.ethGetTransactionByHash(any())).thenReturn(requestTransaction);
+        org.web3j.protocol.core.methods.response.EthTransaction ethTransaction = mock(EthTransaction.class);
+        when(ethTransaction.getTransaction()).thenReturn(Optional.ofNullable(null));
+        when(requestTransaction.send()).thenReturn(ethTransaction);
+
+        Collection<Transaction> result = transactionService.findByHashList(hashes);
+
+        assertThat(result).hasSize(0);
     }
 
     @Test
