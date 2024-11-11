@@ -1,29 +1,35 @@
 package limechain.ethereum_fetcher.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.Request;
 import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
 import org.web3j.protocol.core.methods.response.EthTransaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.exceptions.TransactionException;
+import org.web3j.protocol.http.HttpService;
 
 import limechain.ethereum_fetcher.model.Transaction;
 import limechain.ethereum_fetcher.model.User;
@@ -41,12 +47,25 @@ public class TransactionServiceTest {
     private TransactionRepository transactionRepository;
     @Mock
     private UserRepository userRepository;
-    @InjectMocks
+    @Mock
+    private Authentication authentication;
+
     private TransactionService transactionService;
 
+    @BeforeAll
+    public static void setUpBefore() {
+        mockStatic(SecurityContextHolder.class);
+        mockStatic(Web3j.class);
+    }
+
     @BeforeEach
-    public void setUp() {
+    public void setUpBeforeEach() {
         MockitoAnnotations.openMocks(this);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        when(SecurityContextHolder.getContext()).thenReturn(securityContext);
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(Web3j.build(any(HttpService.class))).thenReturn(web3j);
+        this.transactionService = new TransactionService("", transactionRepository, userRepository);
     }
 
     @Test
@@ -65,10 +84,11 @@ public class TransactionServiceTest {
 
     @Test
     public void testFindByHashList_NewTransactionsFromBlockchain() throws IOException, TransactionException {
-        String transactionHash = HASH1;
-        List<String> hashes = Collections.singletonList(transactionHash);
 
-        when(transactionRepository.findByHashIn(hashes)).thenReturn(Collections.emptyList());
+        when(authentication.isAuthenticated()).thenReturn(false);
+
+        List<String> hashes = Collections.singletonList(HASH1);
+        when(transactionRepository.findByHashIn(hashes)).thenReturn(new ArrayList<Transaction>());
 
         TransactionReceipt receipt = mock(TransactionReceipt.class);
         when(receipt.isStatusOK()).thenReturn(true);
@@ -80,17 +100,22 @@ public class TransactionServiceTest {
         org.web3j.protocol.core.methods.response.EthTransaction ethTransaction = mock(EthTransaction.class);
         when(ethTransaction.getTransaction()).thenReturn(Optional.of(web3Transaction));
 
-        when(web3Transaction.getHash()).thenReturn(transactionHash);
+        when(web3Transaction.getHash()).thenReturn(HASH1);
         when(web3Transaction.getFrom()).thenReturn("from");
         when(web3Transaction.getTo()).thenReturn("to");
 
-        when(web3j.ethGetTransactionByHash(transactionHash).send()).thenReturn(ethTransaction);
-        when(web3j.ethGetTransactionReceipt(transactionHash).send()).thenReturn(ethGetTransactionReceipt);
+        Request requestTransaction = mock(Request.class);
+        when(web3j.ethGetTransactionByHash(HASH1)).thenReturn(requestTransaction);
+        when(requestTransaction.send()).thenReturn(ethTransaction);
+
+        Request requestTransactionReceipt = mock(Request.class);
+        when(web3j.ethGetTransactionReceipt(HASH1)).thenReturn(requestTransactionReceipt);
+        when(requestTransactionReceipt.send()).thenReturn(ethGetTransactionReceipt);
 
         Collection<Transaction> result = transactionService.findByHashList(hashes);
 
         assertThat(result).hasSize(1);
-        assertThat(result.iterator().next().getHash()).isEqualTo(transactionHash);
+        assertThat(result.iterator().next().getHash()).isEqualTo(HASH1);
     }
 
     @Test
