@@ -99,6 +99,7 @@ public class TransactionService {
         return existingTransactions;
     }
 
+    @Transactional
     public Collection<Transaction> findByRlphex(String rlphexHashes) throws IOException, TransactionException {
         return findByHashList(decodeRlpAndGetTransactions(rlphexHashes));
     }
