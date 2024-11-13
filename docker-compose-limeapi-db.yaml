@@ -4,7 +4,7 @@ networks:
 
 services:
   pg:
-    container_name: etherium-fetcher-postgress
+    container_name: limeapi-postgress
     image: postgres:alpine
     environment:
       - "POSTGRES_DB=${PG_DATABASE_NAME:-postgres}"

@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import jakarta.servlet.FilterChain;
@@ -28,42 +28,40 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String AUTHORIZATION = "AUTH_TOKEN";
     private final JwtService jwtService;
-	private final UserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
 
-	@Override
-	protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
-			@NonNull FilterChain filterChain) throws ServletException, IOException {
-		final String jwt = request.getHeader(AUTHORIZATION);
+    @Override
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
+            throws ServletException, IOException {
+        final String jwt = request.getHeader(AUTHORIZATION);
 
-        if (jwt == null || StringUtils.isEmpty(jwt.trim())) {
+        if (jwt == null || ObjectUtils.isEmpty(jwt.trim())) {
+            log.info("JWT token not presented");
             setNotAuthenticated(request, response, filterChain);
-            filterChain.doFilter(request, response);
-			return;
-		}
+        } else {
+            try {
+                final String userName = jwtService.extractUsername(jwt);
 
-		try {
-            final String userName = jwtService.extractUsername(jwt);
+                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                if (userName != null && authentication == null) {
+                    UserDetails userDetails = this.userDetailsService.loadUserByUsername(userName);
 
-			if (userName != null && authentication == null) {
-				UserDetails userDetails = this.userDetailsService.loadUserByUsername(userName);
+                    if (jwtService.isTokenValid(jwt, userDetails)) {
+                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                    }
+                }
 
-                if (jwtService.isTokenValid(jwt, userDetails)) {
-					UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,
-							null, userDetails.getAuthorities());
-					authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-					SecurityContextHolder.getContext().setAuthentication(authToken);
-				}
-			}
+            } catch (Exception e) {
+                log.info("JWT token not valid, reason: _{}", e.getMessage());
+                setNotAuthenticated(request, response, filterChain);
 
-			filterChain.doFilter(request, response);
-		} catch (Exception e) {
-			log.info("JWT token not valid, reason: _{}", e.getMessage());
-            setNotAuthenticated(request, response, filterChain);
-            filterChain.doFilter(request, response);
-		}
-	}
+            }
+        }
+        filterChain.doFilter(request, response);
+    }
 
     private void setNotAuthenticated(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(null, null);
