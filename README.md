@@ -3,7 +3,7 @@
 # Description & Requirements
 
 This task is a REST API server that returns information for certain Ethereum transactions identified by their transaction hashes. 
-Once the transaction fetched it saved into server's DB and next time it fetched from it without needs to turn to the blockcain.
+Once the transaction fetched from blockchain it saved into server's DB and next time it fetched from internal DB without needs to turn to the blockcain.
 
 ## Endpoint: `/lime/eth?transactionHashes`
 
