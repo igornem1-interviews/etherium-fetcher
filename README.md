@@ -54,14 +54,19 @@ It have a single parameter `rlphex` - a hexadecimal representation of RLP encode
 This is an upgrade over the first endpoint with the only difference being the way in which the transaction hashes are gathered - here you will have to decode the RLP list to get them.
 
 ### Architecture of the server - design decisions and overview
-
+In project root there are C4 diagrams:
+- Fig1-System Context Diagram.svg
+- Fig2-Container Diagram.svg
+- Fig3-Component Diagram.svg
+- Fig4-Class Diagram.png
+      
 Architecture consists of three tiers: Controllers, Services, Repositories, they located respectively at packages: limechain.ethereum_fetcher.controller, limechain.ethereum_fetcher.service, limechain.ethereum_fetcher.repository.
 There are packages for DB models and DTOs: limechain.ethereum_fetcher.model and limechain.ethereum_fetcher.dto
 Spring configurations are located at package: limechain.ethereum_fetcher.config
 
 Rest request arrives to specific controller's method then flow calls specific service which executes a business logic.
 The business logic can turn to other services or to repositories. 
-Repositories performs CRUD operations with DB. 
+Repositories performs CRUD operations with DB.
 
 ### Server Configuration
 There is file .env at root of the project, it contains all following environmental variables:
@@ -89,16 +94,6 @@ There is file .env at root of the project, it contains all following environment
    - Set host/port in .env file of DB_CONNECTION_URL, it should be pg:5432
    - Build image: ./buildapp.sh
    - Run: ./startapp.sh
-
-## Architecture
-
-### C4 diagrams of the application
-  
-  In project root there are 4 diagrams:
-      - Fig1-System Context Diagram.svg
-      - Fig2-Container Diagram.svg
-      - Fig3-Component Diagram.svg
-      - Fig4-Class Diagram.png
       
 ## Example requests and responses
 
