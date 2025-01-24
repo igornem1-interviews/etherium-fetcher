@@ -60,9 +60,22 @@ In project root there are C4 diagrams:
 - Fig3-Component Diagram.svg
 - Fig4-Class Diagram.png
       
-Architecture consists of three tiers: Controllers, Services, Repositories, they located respectively at packages: limechain.ethereum_fetcher.controller, limechain.ethereum_fetcher.service, limechain.ethereum_fetcher.repository.
-There are packages for DB models and DTOs: limechain.ethereum_fetcher.model and limechain.ethereum_fetcher.dto
-Spring configurations are located at package: limechain.ethereum_fetcher.config
+Architecture consists of three tiers: 
+- Controllers 
+- Services
+- Repositories
+
+The tiers located respectively at packages:
+- limechain.ethereum_fetcher.controller
+- limechain.ethereum_fetcher.service
+- limechain.ethereum_fetcher.repository
+  
+There are packages for DB models and DTOs:
+- limechain.ethereum_fetcher.model
+- limechain.ethereum_fetcher.dto
+
+Spring configurations are located at package:
+- limechain.ethereum_fetcher.config
 
 Rest request arrives to specific controller's method then flow calls specific service which executes a business logic.
 The business logic can turn to other services or to repositories. 
