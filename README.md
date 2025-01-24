@@ -2,7 +2,8 @@
 
 # Description & Requirements
 
-This task is a REST API server that returns information for certain Ethereum transactions identified by their transaction hashes.
+This task is a REST API server that returns information for certain Ethereum transactions identified by their transaction hashes. 
+Once the transaction fetched it saved into server's DB and next time it fetched from it without needs to turn to the blockcain.
 
 ## Endpoint: `/lime/eth?transactionHashes`
 
@@ -88,7 +89,17 @@ There is file .env at root of the project, it contains all following environment
    - Set host/port in .env file of DB_CONNECTION_URL, it should be pg:5432
    - Build image: ./buildapp.sh
    - Run: ./startapp.sh
-   
+
+## Architecture
+
+### C4 diagrams of the application
+  
+  In project root there are 4 diagrams:
+      - Fig1-System Context Diagram.svg
+      - Fig2-Container Diagram.svg
+      - Fig3-Component Diagram.svg
+      - Fig4-Class Diagram.png
+      
 ## Example requests and responses
 
 The following requests-response pairs are expected on the Ethereum **Sepolia** network:
@@ -407,16 +418,7 @@ The server can be build into image and run in Docker.
 `sudo docker run -p 8001:8001 --network limeapi-network limeapi` or script ./startapp.sh
 
 
-# [Optional] Architect Requirements
-
-## Documentation
-
-### C4 diagrams of the application
-  In project root there are 4 diagrams:
-  Fig1-System Context Diagram.svg
-  Fig2-Container Diagram.svg
-  Fig3-Component Diagram.svg
-  Fig4-Class Diagram.png
+# Improvement questions
   
 ### How would you improve the API? Reasoning around the design choices and tradeoffs
   a. Introduce versioning for backward compatibility for case more deployment flexibility and especially if we'll have frequent updates 
