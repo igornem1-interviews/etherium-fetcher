@@ -78,19 +78,14 @@ There is file .env at root of the project, it contains all following environment
    - Stop DB: ./stop.sh. Please note: after stop DB the volume and container will be removed by the script.
 
 2. Start the application, there are 2 methods: one is as a spring-boot application and other one is dokerized application:
-
-2.1 As spring-boot application:
-    - Note: Before start please set host/port in .env file of DB_CONNECTION_URL, it should be localhost:54322
-    - Run: mvn exec:java
-    - Stop: by sending it a kill signal or `Ctrl+C`.
        
 2.1 As spring-boot application:
-   - Please set host/port in .env file of DB_CONNECTION_URL, it should be localhost:54322
+   - Set host/port in .env file of DB_CONNECTION_URL, it should be localhost:54322
    - Run: mvn exec:java
    - Stop: by sending it a kill signal or `Ctrl+C`.
      
 2.2 As dokerized application:
-   - Please set host/port in .env file of DB_CONNECTION_URL, it should be pg:5432
+   - Set host/port in .env file of DB_CONNECTION_URL, it should be pg:5432
    - Build image: ./buildapp.sh
    - Run: ./startapp.sh
    
