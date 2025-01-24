@@ -74,8 +74,8 @@ There is file .env at root of the project, it contains all following environment
 
 ### How to run the server
 1. Start a dockerized postgresql DB(docker engine should be installed on computer) by using scripts:
-   Start DB: ./startdb.sh
-   Stop DB: ./stop.sh
+   - Start DB: ./startdb.sh
+   - Stop DB: ./stop.sh
    Note: after stop DB by the script will be removed volume and container as well.
 
 2. Start the application, there are 2 methods: one is as a spring-boot application and other one is dokerized application
