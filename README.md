@@ -76,19 +76,19 @@ There is file .env at root of the project, it contains all following environment
 1. Start a dockerized postgresql DB(docker engine should be installed on computer) by using scripts:
    - Start DB: ./startdb.sh
    - Stop DB: ./stop.sh
-- Note: after stop DB by the script will be removed volume and container as well.
+- Note: after stop DB the volume and container will be removed by the script.
 
 2. Start the application, there are 2 methods: one is as a spring-boot application and other one is dokerized application
- 
-    2.1 As spring-boot application:
-       Note: Before start please set host/port in .env file of DB_CONNECTION_URL, it should be localhost:54322
-       Run: mvn exec:java
-       Stop: by sending it a kill signal or `Ctrl+C`.
+
+   2.1 As spring-boot application:
+        - Note: Before start please set host/port in .env file of DB_CONNECTION_URL, it should be localhost:54322
+        - Run: mvn exec:java
+        - Stop: by sending it a kill signal or `Ctrl+C`.
        
     2.2 As dokerized application:
-       Note: Before start please set host/port in .env file of DB_CONNECTION_URL, it should be pg:5432
-       Build image: ./buildapp.sh
-       Run: ./startapp.sh
+       - Note: Before start please set host/port in .env file of DB_CONNECTION_URL, it should be pg:5432
+       - Build image: ./buildapp.sh
+       - Run: ./startapp.sh
    
 ## Example requests and responses
 
