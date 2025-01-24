@@ -53,7 +53,7 @@ The server handle a GET request on endpoint with path `/lime/eth/:rlphex`.
 It have a single parameter `rlphex` - a hexadecimal representation of RLP encoded list of transaction hashes (Example requests for the Sepolia network are provided below). 
 This is an upgrade over the first endpoint with the only difference being the way in which the transaction hashes are gathered - here you will have to decode the RLP list to get them.
 
-### Architecture of the server - design decisions and overview
+## Architecture
 In project root there are C4 diagrams:
 - Fig1-System Context Diagram.svg
 - Fig2-Container Diagram.svg
